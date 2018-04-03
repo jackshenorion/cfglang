@@ -1,0 +1,20 @@
+{
+  parserClass="com.jackshenorion.cfgplugin.parser.CfgParser"
+
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+  psiClassPrefix="Cfg"
+  psiImplClassSuffix="Impl"
+  psiPackage="com.jackshenorion.cfgplugin.psi"
+  psiImplPackage="com.jackshenorion.cfgplugin.psi.impl"
+
+  elementTypeHolderClass="com.jackshenorion.cfgplugin.psi.CfgTypes"
+  elementTypeClass="com.jackshenorion.cfgplugin.psi.CfgElementType"
+  tokenTypeClass="com.jackshenorion.cfgplugin.psi.CfgTokenType"
+}
+
+simpleFile ::= item_*
+
+private item_ ::= (property|COMMENT|CRLF)
+
+property ::= (KEY? SEPARATOR VALUE?) | KEY

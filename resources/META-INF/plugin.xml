@@ -26,6 +26,9 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <fileTypeFactory implementation="com.jackshenorion.cfgplugin.CfgFileTypeFactory"/>
+        <lang.parserDefinition language="Cfg" implementationClass="com.jackshenorion.cfgplugin.CfgParserDefinition"/>
+        <lang.syntaxHighlighterFactory language="Cfg" implementationClass="com.jackshenorion.cfgplugin.CfgSyntaxHighlighterFactory"/>
+        <colorSettingsPage implementation="com.jackshenorion.cfgplugin.CfgColorSettingsPage"/>
     </extensions>
 
     <actions>
