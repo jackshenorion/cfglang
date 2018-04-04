@@ -26,4 +26,8 @@ public class CfgSegmentImpl extends ASTWrapperPsiElement implements CfgSegment {
     else super.accept(visitor);
   }
 
+  public String getName() {
+    return CfgPsiImplUtil.getName(this);
+  }
+
 }

@@ -7,4 +7,6 @@ import com.intellij.psi.PsiElement;
 
 public interface CfgSegment extends PsiElement {
 
+  String getName();
+
 }

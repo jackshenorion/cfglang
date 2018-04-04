@@ -19,6 +19,6 @@ simpleFile ::= item_*
 
 private item_ ::= (property|COMMENT|CRLF) | segment
 
-segment ::= SEGMENT_BEGIN SEGMENT_NAME SEGMENT_END
+segment ::= SEGMENT_BEGIN SEGMENT_NAME SEGMENT_END {methods=[getName]}
 
 property ::= (KEY? SEPARATOR VALUE?) | KEY {methods=[getKey getValue]}

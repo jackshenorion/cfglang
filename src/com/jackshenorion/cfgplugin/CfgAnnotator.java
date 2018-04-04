@@ -5,7 +5,8 @@ import com.intellij.openapi.editor.DefaultLanguageHighlighterColors;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
-import com.jackshenorion.cfgplugin.psi.CfgProperty;
+import com.jackshenorion.cfgplugin.psi.CfgSegment;
+import com.jackshenorion.cfgplugin.psi.impl.CfgPropertyImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -13,23 +14,25 @@ import java.util.List;
 public class CfgAnnotator implements Annotator {
     @Override
     public void annotate(@NotNull final PsiElement element, @NotNull AnnotationHolder holder) {
-        if (element instanceof PsiLiteralExpression) {
-            PsiLiteralExpression literalExpression = (PsiLiteralExpression) element;
-            String value = literalExpression.getValue() instanceof String ? (String) literalExpression.getValue() : null;
-
-            if (value != null && value.startsWith("simple" + ":")) {
+        if (element instanceof CfgPropertyImpl) {
+            CfgPropertyImpl property = (CfgPropertyImpl) element;
+            String key = property.getKey();
+            String value = property.getValue();
+            if (key != null && key.equals("job")) {
                 Project project = element.getProject();
-                String key = value.substring(7);
-                List<CfgProperty> properties = CfgUtil.findProperties(project, key);
-                if (properties.size() == 1) {
-                    TextRange range = new TextRange(element.getTextRange().getStartOffset() + 7,
-                            element.getTextRange().getStartOffset() + 7);
-                    Annotation annotation = holder.createInfoAnnotation(range, null);
-                    annotation.setTextAttributes(DefaultLanguageHighlighterColors.LINE_COMMENT);
-                } else if (properties.size() == 0) {
-                    TextRange range = new TextRange(element.getTextRange().getStartOffset() + 8,
+                List<CfgSegment> segments = CfgUtil.findSegments(project, value);
+                if (segments.size() == 1) {
+                    TextRange range = new TextRange(element.getTextRange().getStartOffset() + 3,
+                            element.getTextRange().getStartOffset() + 3);
+                    holder.createInfoAnnotation(range, null);
+                } else if (segments.size() == 0) {
+                    TextRange range = new TextRange(element.getTextRange().getStartOffset() + 4,
                             element.getTextRange().getEndOffset());
-                    holder.createErrorAnnotation(range, "Unresolved property");
+                    holder.createErrorAnnotation(range, "Undefined job");
+                } else {
+                    TextRange range = new TextRange(element.getTextRange().getStartOffset() + 4,
+                            element.getTextRange().getEndOffset());
+                    holder.createErrorAnnotation(range, "Duplicated job definition");
                 }
             }
         }

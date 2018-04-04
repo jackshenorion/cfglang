@@ -28,4 +28,13 @@ public class CfgPsiImplUtil {
             return null;
         }
     }
+
+    public static String getName(CfgSegment element) {
+        ASTNode segmentNameNode = element.getNode().findChildByType(CfgTypes.SEGMENT_NAME);
+        if (segmentNameNode != null) {
+            return segmentNameNode.getText();
+        } else {
+            return null;
+        }
+    }
 }

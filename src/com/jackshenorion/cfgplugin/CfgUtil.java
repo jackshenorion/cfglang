@@ -17,9 +17,9 @@ public class CfgUtil {
                 FileBasedIndex.getInstance().getContainingFiles(FileTypeIndex.NAME, CfgFileType.INSTANCE,
                         GlobalSearchScope.allScope(project));
         for (VirtualFile virtualFile : virtualFiles) {
-            CfgFile simpleFile = (CfgFile) PsiManager.getInstance(project).findFile(virtualFile);
-            if (simpleFile != null) {
-                CfgProperty[] properties = PsiTreeUtil.getChildrenOfType(simpleFile, CfgProperty.class);
+            CfgFile cfgFile = (CfgFile) PsiManager.getInstance(project).findFile(virtualFile);
+            if (cfgFile != null) {
+                CfgProperty[] properties = PsiTreeUtil.getChildrenOfType(cfgFile, CfgProperty.class);
                 if (properties != null) {
                     for (CfgProperty property : properties) {
                         if (key.equals(property.getKey())) {
@@ -41,11 +41,52 @@ public class CfgUtil {
                 FileBasedIndex.getInstance().getContainingFiles(FileTypeIndex.NAME, CfgFileType.INSTANCE,
                         GlobalSearchScope.allScope(project));
         for (VirtualFile virtualFile : virtualFiles) {
-            CfgFile simpleFile = (CfgFile) PsiManager.getInstance(project).findFile(virtualFile);
-            if (simpleFile != null) {
-                CfgProperty[] properties = PsiTreeUtil.getChildrenOfType(simpleFile, CfgProperty.class);
+            CfgFile cfgFile = (CfgFile) PsiManager.getInstance(project).findFile(virtualFile);
+            if (cfgFile != null) {
+                CfgProperty[] properties = PsiTreeUtil.getChildrenOfType(cfgFile, CfgProperty.class);
                 if (properties != null) {
                     Collections.addAll(result, properties);
+                }
+            }
+        }
+        return result;
+    }
+
+    public static List<CfgSegment> findSegments(Project project, String segmentName) {
+        List<CfgSegment> result = null;
+        Collection<VirtualFile> virtualFiles =
+                FileBasedIndex.getInstance().getContainingFiles(FileTypeIndex.NAME, CfgFileType.INSTANCE,
+                        GlobalSearchScope.allScope(project));
+        for (VirtualFile virtualFile : virtualFiles) {
+            CfgFile cfgFile = (CfgFile) PsiManager.getInstance(project).findFile(virtualFile);
+            if (cfgFile != null) {
+                CfgSegment[] segments = PsiTreeUtil.getChildrenOfType(cfgFile, CfgSegment.class);
+                if (segments != null) {
+                    for (CfgSegment segment : segments) {
+                        if (segmentName.equals(segment.getName())) {
+                            if (result == null) {
+                                result = new ArrayList<CfgSegment>();
+                            }
+                            result.add(segment);
+                        }
+                    }
+                }
+            }
+        }
+        return result != null ? result : Collections.<CfgSegment>emptyList();
+    }
+
+    public static List<CfgSegment> findSegments(Project project) {
+        List<CfgSegment> result = new ArrayList<CfgSegment>();
+        Collection<VirtualFile> virtualFiles =
+                FileBasedIndex.getInstance().getContainingFiles(FileTypeIndex.NAME, CfgFileType.INSTANCE,
+                        GlobalSearchScope.allScope(project));
+        for (VirtualFile virtualFile : virtualFiles) {
+            CfgFile cfgFile = (CfgFile) PsiManager.getInstance(project).findFile(virtualFile);
+            if (cfgFile != null) {
+                CfgSegment[] segments = PsiTreeUtil.getChildrenOfType(cfgFile, CfgSegment.class);
+                if (segments != null) {
+                    Collections.addAll(result, segments);
                 }
             }
         }
