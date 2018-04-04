@@ -14,6 +14,7 @@ public class CfgColorSettingsPage implements ColorSettingsPage {
             new AttributesDescriptor("Key", CfgSyntaxHighlighter.KEY),
             new AttributesDescriptor("Separator", CfgSyntaxHighlighter.SEPARATOR),
             new AttributesDescriptor("Value", CfgSyntaxHighlighter.VALUE),
+            new AttributesDescriptor("Segment", CfgSyntaxHighlighter.SEGMENT_NAME),
     };
 
     @Nullable
@@ -33,6 +34,7 @@ public class CfgColorSettingsPage implements ColorSettingsPage {
     public String getDemoText() {
         return "# You are reading the \".properties\" entry.\n" +
                 "! The exclamation mark can also mark text as comments.\n" +
+                "[FirstJob]\n" +
                 "website = http://en.wikipedia.org/\n" +
                 "language = English\n" +
                 "# The backslash below tells the application to continue reading\n" +

@@ -22,10 +22,15 @@ VALUE_CHARACTER=[^\n\f\\] | "\\"{CRLF} | "\\".
 END_OF_LINE_COMMENT=("#"|"!")[^\r\n]*
 SEPARATOR=[:=]
 KEY_CHARACTER=[^:=\ \n\t\f\\] | "\\ "
+SEGMENT_NAME=[^:=\ \n\t\f\\]+
+SEGMENT_BEGIN="["
+SEGMENT_END="]"
 
 %state WAITING_VALUE
 
 %%
+
+<YYINITIAL> {SEGMENT_BEGIN}{WHITE_SPACE}*{SEGMENT_NAME}{WHITE_SPACE}*{SEGMENT_END}   { yybegin(YYINITIAL); return CfgTypes.SEGMENT_NAME; }
 
 <YYINITIAL> {END_OF_LINE_COMMENT}                           { yybegin(YYINITIAL); return CfgTypes.COMMENT; }
 

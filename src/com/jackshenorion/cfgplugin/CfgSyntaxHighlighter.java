@@ -22,6 +22,8 @@ public class CfgSyntaxHighlighter extends SyntaxHighlighterBase {
             createTextAttributesKey("SIMPLE_COMMENT", DefaultLanguageHighlighterColors.LINE_COMMENT);
     public static final TextAttributesKey BAD_CHARACTER =
             createTextAttributesKey("SIMPLE_BAD_CHARACTER", HighlighterColors.BAD_CHARACTER);
+    public static final TextAttributesKey SEGMENT_NAME =
+            createTextAttributesKey("SIMPLE_SEGMENT_NAME", DefaultLanguageHighlighterColors.STATIC_FIELD);
 
     private static final TextAttributesKey[] BAD_CHAR_KEYS = new TextAttributesKey[]{BAD_CHARACTER};
     private static final TextAttributesKey[] SEPARATOR_KEYS = new TextAttributesKey[]{SEPARATOR};
@@ -29,6 +31,7 @@ public class CfgSyntaxHighlighter extends SyntaxHighlighterBase {
     private static final TextAttributesKey[] VALUE_KEYS = new TextAttributesKey[]{VALUE};
     private static final TextAttributesKey[] COMMENT_KEYS = new TextAttributesKey[]{COMMENT};
     private static final TextAttributesKey[] EMPTY_KEYS = new TextAttributesKey[0];
+    private static final TextAttributesKey[] SEGMENT_NAME_KEYS = new TextAttributesKey[]{SEGMENT_NAME};
 
     @NotNull
     @Override
@@ -49,6 +52,8 @@ public class CfgSyntaxHighlighter extends SyntaxHighlighterBase {
             return COMMENT_KEYS;
         } else if (tokenType.equals(TokenType.BAD_CHARACTER)) {
             return BAD_CHAR_KEYS;
+        } else if (tokenType.equals(CfgTypes.SEGMENT_NAME)) {
+            return SEGMENT_NAME_KEYS;
         } else {
             return EMPTY_KEYS;
         }

@@ -26,6 +26,9 @@ public class CfgParser implements PsiParser, LightPsiParser {
     if (t == PROPERTY) {
       r = property(b, 0);
     }
+    else if (t == SEGMENT) {
+      r = segment(b, 0);
+    }
     else {
       r = parse_root_(t, b, 0);
     }
@@ -37,9 +40,20 @@ public class CfgParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // property|COMMENT|CRLF
+  // (property|COMMENT|CRLF) | segment
   static boolean item_(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "item_")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = item__0(b, l + 1);
+    if (!r) r = segment(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // property|COMMENT|CRLF
+  private static boolean item__0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "item__0")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = property(b, l + 1);
@@ -86,6 +100,18 @@ public class CfgParser implements PsiParser, LightPsiParser {
     if (!recursion_guard_(b, l, "property_0_2")) return false;
     consumeToken(b, VALUE);
     return true;
+  }
+
+  /* ********************************************************** */
+  // SEGMENT_NAME
+  public static boolean segment(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "segment")) return false;
+    if (!nextTokenIs(b, SEGMENT_NAME)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, SEGMENT_NAME);
+    exit_section_(b, m, SEGMENT, r);
+    return r;
   }
 
   /* ********************************************************** */
