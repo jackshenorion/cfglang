@@ -7,6 +7,7 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
 import com.jackshenorion.cfgplugin.psi.CfgSegment;
 import com.jackshenorion.cfgplugin.psi.impl.CfgPropertyImpl;
+import com.jackshenorion.cfgplugin.psi.impl.CfgSegmentImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -31,6 +32,18 @@ public class CfgAnnotator implements Annotator {
                     holder.createErrorAnnotation(range, "Undefined job");
                 } else {
                     TextRange range = new TextRange(element.getTextRange().getStartOffset() + 4,
+                            element.getTextRange().getEndOffset());
+                    holder.createErrorAnnotation(range, "Duplicated job definition");
+                }
+            }
+        } else if (element instanceof CfgSegmentImpl) {
+            CfgSegmentImpl segment = (CfgSegmentImpl) element;
+            String segmentName = segment.getName();
+            if (segmentName != null && !segmentName.equals("General")) {
+                Project project = element.getProject();
+                List<CfgSegment> segments = CfgUtil.findSegments(project, segmentName);
+                if (segments.size() > 1) {
+                    TextRange range = new TextRange(element.getTextRange().getStartOffset(),
                             element.getTextRange().getEndOffset());
                     holder.createErrorAnnotation(range, "Duplicated job definition");
                 }
