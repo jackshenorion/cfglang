@@ -1,17 +1,15 @@
 <idea-plugin>
-    <id>com.your.company.unique.plugin.id</id>
-    <name>Plugin display name here</name>
+    <id>com.nasdaq.smarts.control.cfgplugin</id>
+    <name>Smarts Control Cfg Plugin</name>
     <version>1.0</version>
-    <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+    <vendor email="jack.shen@nasdaq.com" url="http://www.nasdaq.com">Smarts Group</vendor>
 
     <description><![CDATA[
-      Enter short description for your plugin here.<br>
-      <em>most HTML tags may be used</em>
+      This is a plugin for Smarts Control config files.<br>
     ]]></description>
 
     <change-notes><![CDATA[
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>
+      First version.<br>
     ]]>
     </change-notes>
 
