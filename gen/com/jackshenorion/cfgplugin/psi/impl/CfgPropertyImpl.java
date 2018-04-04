@@ -26,4 +26,12 @@ public class CfgPropertyImpl extends ASTWrapperPsiElement implements CfgProperty
     else super.accept(visitor);
   }
 
+  public String getKey() {
+    return CfgPsiImplUtil.getKey(this);
+  }
+
+  public String getValue() {
+    return CfgPsiImplUtil.getValue(this);
+  }
+
 }

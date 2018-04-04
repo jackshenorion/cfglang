@@ -14,6 +14,8 @@ public interface CfgTypes {
   IElementType COMMENT = new CfgTokenType("COMMENT");
   IElementType CRLF = new CfgTokenType("CRLF");
   IElementType KEY = new CfgTokenType("KEY");
+  IElementType SEGMENT_BEGIN = new CfgTokenType("SEGMENT_BEGIN");
+  IElementType SEGMENT_END = new CfgTokenType("SEGMENT_END");
   IElementType SEGMENT_NAME = new CfgTokenType("SEGMENT_NAME");
   IElementType SEPARATOR = new CfgTokenType("SEPARATOR");
   IElementType VALUE = new CfgTokenType("VALUE");

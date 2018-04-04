@@ -21,16 +21,22 @@ FIRST_VALUE_CHARACTER=[^ \n\f\\] | "\\"{CRLF} | "\\".
 VALUE_CHARACTER=[^\n\f\\] | "\\"{CRLF} | "\\".
 END_OF_LINE_COMMENT=("#"|"!")[^\r\n]*
 SEPARATOR=[:=]
-KEY_CHARACTER=[^:=\ \n\t\f\\] | "\\ "
-SEGMENT_NAME=[^:=\ \n\t\f\\]+
+KEY_CHARACTER=[^:=\ \[\]\n\t\f\\] | "\\ "
+SEGMENT_NAME=[^:=\ \n\[\]\t\f\\]+
 SEGMENT_BEGIN="["
 SEGMENT_END="]"
 
 %state WAITING_VALUE
+%state WAITING_SEGMENT_NAME
 
 %%
 
-<YYINITIAL> {SEGMENT_BEGIN}{WHITE_SPACE}*{SEGMENT_NAME}{WHITE_SPACE}*{SEGMENT_END}   { yybegin(YYINITIAL); return CfgTypes.SEGMENT_NAME; }
+//<YYINITIAL> {SEGMENT_BEGIN}{SEGMENT_NAME}{SEGMENT_END}      { yybegin(YYINITIAL); return CfgTypes.SEGMENT_NAME;}
+<YYINITIAL> {SEGMENT_BEGIN}                                 { yybegin(WAITING_SEGMENT_NAME); return CfgTypes.SEGMENT_BEGIN;}
+
+<WAITING_SEGMENT_NAME> {SEGMENT_NAME}                       { return CfgTypes.SEGMENT_NAME; }
+
+<WAITING_SEGMENT_NAME> {SEGMENT_END}                        { yybegin(YYINITIAL); return CfgTypes.SEGMENT_END;}
 
 <YYINITIAL> {END_OF_LINE_COMMENT}                           { yybegin(YYINITIAL); return CfgTypes.COMMENT; }
 

@@ -103,13 +103,13 @@ public class CfgParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // SEGMENT_NAME
+  // SEGMENT_BEGIN SEGMENT_NAME SEGMENT_END
   public static boolean segment(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "segment")) return false;
-    if (!nextTokenIs(b, SEGMENT_NAME)) return false;
+    if (!nextTokenIs(b, SEGMENT_BEGIN)) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = consumeToken(b, SEGMENT_NAME);
+    r = consumeTokens(b, 0, SEGMENT_BEGIN, SEGMENT_NAME, SEGMENT_END);
     exit_section_(b, m, SEGMENT, r);
     return r;
   }

@@ -11,12 +11,14 @@
   elementTypeHolderClass="com.jackshenorion.cfgplugin.psi.CfgTypes"
   elementTypeClass="com.jackshenorion.cfgplugin.psi.CfgElementType"
   tokenTypeClass="com.jackshenorion.cfgplugin.psi.CfgTokenType"
+
+  psiImplUtilClass="com.jackshenorion.cfgplugin.psi.impl.CfgPsiImplUtil"
 }
 
 simpleFile ::= item_*
 
 private item_ ::= (property|COMMENT|CRLF) | segment
 
-segment ::= SEGMENT_NAME
+segment ::= SEGMENT_BEGIN SEGMENT_NAME SEGMENT_END
 
-property ::= (KEY? SEPARATOR VALUE?) | KEY
+property ::= (KEY? SEPARATOR VALUE?) | KEY {methods=[getKey getValue]}
