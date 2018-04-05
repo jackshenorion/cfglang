@@ -21,17 +21,6 @@ import static com.intellij.codeInsight.completion.CompletionUtil.DUMMY_IDENTIFIE
 public class CfgReferenceContributor extends PsiReferenceContributor {
     @Override
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {
-//        registrar.registerReferenceProvider(PlatformPatterns.psiElement(PsiElement.class),
-//                new PsiReferenceProvider() {
-//                    @NotNull
-//                    @Override
-//                    public PsiReference[] getReferencesByElement(@NotNull PsiElement element,
-//                                                                 @NotNull ProcessingContext
-//                                                                         context) {
-//                        System.out.println(element + ":" + element.getText());
-//                        return PsiReference.EMPTY_ARRAY;
-//                    }
-//                });
 
         registrar.registerReferenceProvider(PlatformPatterns.psiElement(CfgTypes.PROPERTY),
                 new PsiReferenceProvider() {
@@ -40,7 +29,6 @@ public class CfgReferenceContributor extends PsiReferenceContributor {
                     public PsiReference[] getReferencesByElement(@NotNull PsiElement element,
                                                                  @NotNull ProcessingContext
                                                                          context) {
-                        System.out.println(element);
                         CfgProperty property = (CfgProperty) element;
                         String key = property.getKey();
                         String value = property.getValue() instanceof String ?
