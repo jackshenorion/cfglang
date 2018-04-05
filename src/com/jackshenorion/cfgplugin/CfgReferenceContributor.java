@@ -21,17 +21,17 @@ import static com.intellij.codeInsight.completion.CompletionUtil.DUMMY_IDENTIFIE
 public class CfgReferenceContributor extends PsiReferenceContributor {
     @Override
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {
-        registrar.registerReferenceProvider(PlatformPatterns.psiElement(PsiElement.class),
-                new PsiReferenceProvider() {
-                    @NotNull
-                    @Override
-                    public PsiReference[] getReferencesByElement(@NotNull PsiElement element,
-                                                                 @NotNull ProcessingContext
-                                                                         context) {
-                        System.out.println(element + ":" + element.getText());
-                        return PsiReference.EMPTY_ARRAY;
-                    }
-                });
+//        registrar.registerReferenceProvider(PlatformPatterns.psiElement(PsiElement.class),
+//                new PsiReferenceProvider() {
+//                    @NotNull
+//                    @Override
+//                    public PsiReference[] getReferencesByElement(@NotNull PsiElement element,
+//                                                                 @NotNull ProcessingContext
+//                                                                         context) {
+//                        System.out.println(element + ":" + element.getText());
+//                        return PsiReference.EMPTY_ARRAY;
+//                    }
+//                });
 
         registrar.registerReferenceProvider(PlatformPatterns.psiElement(CfgTypes.PROPERTY),
                 new PsiReferenceProvider() {
@@ -47,29 +47,29 @@ public class CfgReferenceContributor extends PsiReferenceContributor {
                                 (String) property.getValue() : null;
                         if (key != null && needJob(key) && value != null) {
                             return new PsiReference[]{
-                                    new CfgReference(element, new TextRange(0, value.length() + 1))};
+                                    new CfgReference(element, new TextRange(4, value.length() + 4))};
                         }
                         return PsiReference.EMPTY_ARRAY;
                     }
                 });
 
-//        registrar.registerReferenceProvider(PlatformPatterns.psiElement(CfgSegmentImpl.class),
-//                new PsiReferenceProvider() {
-//                    @NotNull
-//                    @Override
-//                    public PsiReference[] getReferencesByElement(@NotNull PsiElement element,
-//                                                                 @NotNull ProcessingContext
-//                                                                         context) {
-//                        CfgSegmentImpl segment = (CfgSegmentImpl) element;
-//                        String name = segment.getName() instanceof String ?
-//                                (String) segment.getName() : null;
-//                        if (name != null) {
-//                            return new PsiReference[]{
-//                                    new CfgReference(element, new TextRange(0, name.length() + 1))};
-//                        }
-//                        return PsiReference.EMPTY_ARRAY;
-//                    }
-//                });
+        registrar.registerReferenceProvider(PlatformPatterns.psiElement(CfgSegmentImpl.class),
+                new PsiReferenceProvider() {
+                    @NotNull
+                    @Override
+                    public PsiReference[] getReferencesByElement(@NotNull PsiElement element,
+                                                                 @NotNull ProcessingContext
+                                                                         context) {
+                        CfgSegmentImpl segment = (CfgSegmentImpl) element;
+                        String name = segment.getName() instanceof String ?
+                                (String) segment.getName() : null;
+                        if (name != null) {
+                            return new PsiReference[]{
+                                    new CfgReference(element, new TextRange(1, name.length() + 1))};
+                        }
+                        return PsiReference.EMPTY_ARRAY;
+                    }
+                });
     }
 
     private static boolean needJob(String key) {

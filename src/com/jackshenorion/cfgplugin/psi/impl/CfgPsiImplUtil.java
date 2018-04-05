@@ -3,6 +3,7 @@ package com.jackshenorion.cfgplugin.psi.impl;
 import com.intellij.lang.ASTNode;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.*;
+import com.intellij.psi.impl.source.resolve.reference.ReferenceProvidersRegistry;
 import com.jackshenorion.cfgplugin.CfgIcons;
 import com.jackshenorion.cfgplugin.psi.*;
 import org.jetbrains.annotations.Nullable;
@@ -58,11 +59,11 @@ public class CfgPsiImplUtil {
     }
 
     public static String getName(CfgProperty element) {
-        return getKey(element);
+        return getValue(element);
     }
 
     public static PsiElement setName(CfgProperty element, String newName) {
-        ASTNode keyNode = element.getNode().findChildByType(CfgTypes.KEY);
+        ASTNode keyNode = element.getNode().findChildByType(CfgTypes.VALUE);
         if (keyNode != null) {
             CfgProperty property = CfgElementFactory.createProperty(element.getProject(), newName);
             ASTNode newKeyNode = property.getFirstChild().getNode();
@@ -72,11 +73,19 @@ public class CfgPsiImplUtil {
     }
 
     public static PsiElement getNameIdentifier(CfgProperty element) {
-        ASTNode keyNode = element.getNode().findChildByType(CfgTypes.KEY);
+        ASTNode keyNode = element.getNode().findChildByType(CfgTypes.VALUE);
         if (keyNode != null) {
             return keyNode.getPsi();
         } else {
             return null;
         }
+    }
+
+    public static PsiReference[] getReferences(CfgProperty element) {
+        return ReferenceProvidersRegistry.getReferencesFromProviders(element, CfgPropertyImpl.class);
+    }
+
+    public static PsiReference[] getReferences(CfgSegment element) {
+        return ReferenceProvidersRegistry.getReferencesFromProviders(element, CfgSegmentImpl.class);
     }
 }

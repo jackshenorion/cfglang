@@ -9,6 +9,7 @@ import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static com.jackshenorion.cfgplugin.psi.CfgTypes.*;
 import com.jackshenorion.cfgplugin.psi.*;
+import com.intellij.psi.PsiReference;
 
 public class CfgPropertyImpl extends CfgNamedElementImpl implements CfgProperty {
 
@@ -43,6 +44,10 @@ public class CfgPropertyImpl extends CfgNamedElementImpl implements CfgProperty 
 
   public PsiElement getNameIdentifier() {
     return CfgPsiImplUtil.getNameIdentifier(this);
+  }
+
+  public PsiReference[] getReferences() {
+    return CfgPsiImplUtil.getReferences(this);
   }
 
 }

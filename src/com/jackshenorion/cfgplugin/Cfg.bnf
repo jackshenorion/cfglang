@@ -20,7 +20,7 @@ simpleFile ::= item_*
 private item_ ::= (property|COMMENT|CRLF) | segment
 
 segment ::= SEGMENT_BEGIN SEGMENT_NAME SEGMENT_END {mixin="com.jackshenorion.cfgplugin.psi.impl.CfgNamedElementImpl"
- implements="com.jackshenorion.cfgplugin.psi.CfgNamedElement" methods=[getName setName getNameIdentifier]}
+ implements="com.jackshenorion.cfgplugin.psi.CfgNamedElement" methods=[getName setName getNameIdentifier getReferences]}
 
 property ::= (KEY? SEPARATOR VALUE?) | KEY {mixin="com.jackshenorion.cfgplugin.psi.impl.CfgNamedElementImpl"
- implements="com.jackshenorion.cfgplugin.psi.CfgNamedElement" methods=[getKey getValue getName setName getNameIdentifier]}
+ implements="com.jackshenorion.cfgplugin.psi.CfgNamedElement" methods=[getKey getValue getName setName getNameIdentifier getReferences]}
