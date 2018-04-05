@@ -23,26 +23,36 @@ public class CfgCompletionContributor extends CompletionContributor {
                     public void addCompletions(@NotNull CompletionParameters parameters,
                                                ProcessingContext context,
                                                @NotNull CompletionResultSet resultSet) {
-                        PsiElement element = parameters.getPosition();
-                        PsiElement parent = element.getParent();
-                        if (parent != null && parent instanceof CfgPropertyImpl) {
-                            CfgPropertyImpl property = (CfgPropertyImpl) parent;
-                            String key = property.getKey();
-                            String value = element.getText();
-                            if (key != null && key.equals("job") && value != null) {
-                                int endPosition = value.indexOf(DUMMY_IDENTIFIER);
-                                String inputString = endPosition >= 0 ? value.substring(0, endPosition) : value;
-                                Project project = element.getProject();
-                                List<CfgSegment> segments = CfgUtil.findSegments(project);
-                                for (CfgSegment segment : segments) {
-                                    if (segment.getName().startsWith(inputString)) {
-                                        resultSet.addElement(LookupElementBuilder.create(segment.getName()));
-                                    }
-                                }
-                            }
-                        }
+                        addCompletionsForJob(parameters, context, resultSet);
                     }
                 }
         );
+    }
+
+    private void addCompletionsForJob(@NotNull CompletionParameters parameters,
+                                      ProcessingContext context,
+                                      @NotNull CompletionResultSet resultSet) {
+        PsiElement element = parameters.getPosition();
+        PsiElement parent = element.getParent();
+        if (parent != null && parent instanceof CfgPropertyImpl) {
+            CfgPropertyImpl property = (CfgPropertyImpl) parent;
+            String key = property.getKey();
+            String value = element.getText();
+            if (key != null && needJob(key) && value != null) {
+                int endPosition = value.indexOf(DUMMY_IDENTIFIER);
+                String inputString = endPosition >= 0 ? value.substring(0, endPosition) : value;
+                Project project = element.getProject();
+                List<CfgSegment> segments = CfgUtil.findSegments(project);
+                for (CfgSegment segment : segments) {
+                    if (segment.getName().startsWith(inputString)) {
+                        resultSet.addElement(LookupElementBuilder.create(segment.getName()));
+                    }
+                }
+            }
+        }
+    }
+
+    private static boolean needJob(String key) {
+        return key.equals("job") || key.equals("waitJob");
     }
 }
