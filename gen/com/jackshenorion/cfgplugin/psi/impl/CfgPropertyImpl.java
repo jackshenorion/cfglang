@@ -8,10 +8,9 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static com.jackshenorion.cfgplugin.psi.CfgTypes.*;
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.jackshenorion.cfgplugin.psi.*;
 
-public class CfgPropertyImpl extends ASTWrapperPsiElement implements CfgProperty {
+public class CfgPropertyImpl extends CfgNamedElementImpl implements CfgProperty {
 
   public CfgPropertyImpl(ASTNode node) {
     super(node);
@@ -32,6 +31,18 @@ public class CfgPropertyImpl extends ASTWrapperPsiElement implements CfgProperty
 
   public String getValue() {
     return CfgPsiImplUtil.getValue(this);
+  }
+
+  public String getName() {
+    return CfgPsiImplUtil.getName(this);
+  }
+
+  public PsiElement setName(String newName) {
+    return CfgPsiImplUtil.setName(this, newName);
+  }
+
+  public PsiElement getNameIdentifier() {
+    return CfgPsiImplUtil.getNameIdentifier(this);
   }
 
 }

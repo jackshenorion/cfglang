@@ -37,4 +37,46 @@ public class CfgPsiImplUtil {
             return null;
         }
     }
+
+    public static PsiElement setName(CfgSegment element, String newName) {
+        ASTNode segmentNameNode = element.getNode().findChildByType(CfgTypes.SEGMENT_NAME);
+        if (segmentNameNode != null) {
+            CfgSegment segment = CfgElementFactory.createSegment(element.getProject(), newName);
+            ASTNode newKeyNode = segment.getFirstChild().getNode();
+            element.getNode().replaceChild(segmentNameNode, newKeyNode);
+        }
+        return element;
+    }
+
+    public static PsiElement getNameIdentifier(CfgSegment element) {
+        ASTNode keyNode = element.getNode().findChildByType(CfgTypes.SEGMENT_NAME);
+        if (keyNode != null) {
+            return keyNode.getPsi();
+        } else {
+            return null;
+        }
+    }
+
+    public static String getName(CfgProperty element) {
+        return getKey(element);
+    }
+
+    public static PsiElement setName(CfgProperty element, String newName) {
+        ASTNode keyNode = element.getNode().findChildByType(CfgTypes.KEY);
+        if (keyNode != null) {
+            CfgProperty property = CfgElementFactory.createProperty(element.getProject(), newName);
+            ASTNode newKeyNode = property.getFirstChild().getNode();
+            element.getNode().replaceChild(keyNode, newKeyNode);
+        }
+        return element;
+    }
+
+    public static PsiElement getNameIdentifier(CfgProperty element) {
+        ASTNode keyNode = element.getNode().findChildByType(CfgTypes.KEY);
+        if (keyNode != null) {
+            return keyNode.getPsi();
+        } else {
+            return null;
+        }
+    }
 }

@@ -8,10 +8,14 @@ import com.intellij.psi.PsiElement;
 public class CfgVisitor extends PsiElementVisitor {
 
   public void visitProperty(@NotNull CfgProperty o) {
-    visitPsiElement(o);
+    visitNamedElement(o);
   }
 
   public void visitSegment(@NotNull CfgSegment o) {
+    visitNamedElement(o);
+  }
+
+  public void visitNamedElement(@NotNull CfgNamedElement o) {
     visitPsiElement(o);
   }
 

@@ -29,6 +29,8 @@
         <colorSettingsPage implementation="com.jackshenorion.cfgplugin.CfgColorSettingsPage"/>
         <annotator language="Cfg" implementationClass="com.jackshenorion.cfgplugin.CfgAnnotator"/>
         <completion.contributor language="Cfg" implementationClass="com.jackshenorion.cfgplugin.CfgCompletionContributor"/>
+        <psi.referenceContributor implementation="com.jackshenorion.cfgplugin.CfgReferenceContributor"/>
+        <lang.refactoringSupport implementationClass="com.jackshenorion.cfgplugin.CfgRefactoringSupportProvider"/>
     </extensions>
 
     <actions>
