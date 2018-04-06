@@ -32,19 +32,34 @@ public class CfgColorSettingsPage implements ColorSettingsPage {
     @NotNull
     @Override
     public String getDemoText() {
-        return "# You are reading the \".properties\" entry.\n" +
-                "! The exclamation mark can also mark text as comments.\n" +
-                "[FirstJob]\n" +
-                "website = http://en.wikipedia.org/\n" +
-                "language = English\n" +
-                "# The backslash below tells the application to continue reading\n" +
-                "# the value onto the next line.\n" +
-                "message = Welcome to \\\n" +
-                "          Wikipedia!\n" +
-                "# Add spaces to the key\n" +
-                "key\\ with\\ spaces = This is the value that could be looked up with the key \"key with spaces\".\n" +
-                "# Unicode\n" +
-                "tab : \\u0009";
+        return "#\n" +
+                "# SmartsControl.cfg\n" +
+                "#\n" +
+                "# Configuration file for SmartsControl.pl.\n" +
+                "#\n" +
+                "# The following parameters are available for dynamic substitution:\n" +
+                "# %HOSTNAME%    = the current machine hostname.\n" +
+                "# %SMARTS*_     = Path to various SMARTS directories, see SMARTS::Util::Environment.pm documentation for details.\n" +
+                "# %MARKET%      = Name of market.\n" +
+                "# %YYYY%        = 4 digit year.\n" +
+                "# %MM%          = 2 digit month.\n" +
+                "# %DD%          = 2 digit day.\n" +
+                "# %YYYYMMDD%    = 8 digit year, month and day.\n" +
+                "\n" +
+                "# General Configuration\n" +
+                "[General]\n" +
+                "\n" +
+                "[LOPBatchJob]\n" +
+                "jobClass=BatchFIFO\n" +
+                "job=WaitForLOPFilesBatch\n" +
+                "job=MoveLOPFilesFromInputToRawBatch\n" +
+                "job=LOPSqliteConverterBatch\n" +
+                "job=RunLOPReport\n" +
+                "\n" +
+                "[DcassListenerBatchJob]\n" +
+                "jobClass=BatchFIFO\n" +
+                "job=OCQListenerJob\n" +
+                "job=GzipOCQ\n";
     }
 
     @Nullable
