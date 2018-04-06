@@ -31,6 +31,9 @@
         <completion.contributor language="Cfg" implementationClass="com.jackshenorion.cfgplugin.CfgCompletionContributor"/>
         <psi.referenceContributor language="Cfg" implementation="com.jackshenorion.cfgplugin.CfgReferenceContributor"/>
         <lang.refactoringSupport language="Cfg" implementationClass="com.jackshenorion.cfgplugin.CfgRefactoringSupportProvider"/>
+        <lang.psiStructureViewFactory language="Cfg" implementationClass="com.jackshenorion.cfgplugin.CfgStructureViewFactory"/>
+        <gotoSymbolContributor implementation="com.jackshenorion.cfgplugin.CfgChooseByNameContributor"/>
+        <lang.findUsagesProvider language="Cfg" implementationClass="com.jackshenorion.cfgplugin.CfgFindUsagesProvider"/>
     </extensions>
 
     <actions>

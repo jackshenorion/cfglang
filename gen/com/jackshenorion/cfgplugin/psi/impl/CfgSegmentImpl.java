@@ -9,6 +9,7 @@ import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static com.jackshenorion.cfgplugin.psi.CfgTypes.*;
 import com.jackshenorion.cfgplugin.psi.*;
+import com.intellij.navigation.ItemPresentation;
 import com.intellij.psi.PsiReference;
 
 public class CfgSegmentImpl extends CfgNamedElementImpl implements CfgSegment {
@@ -40,6 +41,10 @@ public class CfgSegmentImpl extends CfgNamedElementImpl implements CfgSegment {
 
   public PsiReference[] getReferences() {
     return CfgPsiImplUtil.getReferences(this);
+  }
+
+  public ItemPresentation getPresentation() {
+    return CfgPsiImplUtil.getPresentation(this);
   }
 
 }

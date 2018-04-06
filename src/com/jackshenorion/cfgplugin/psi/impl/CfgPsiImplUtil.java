@@ -97,4 +97,26 @@ public class CfgPsiImplUtil {
         }
         return element;
     }
+
+    public static ItemPresentation getPresentation(final CfgSegment element) {
+        return new ItemPresentation() {
+            @Nullable
+            @Override
+            public String getPresentableText() {
+                return element.getName();
+            }
+
+            @Nullable
+            @Override
+            public String getLocationString() {
+                return element.getContainingFile().getName();
+            }
+
+            @Nullable
+            @Override
+            public Icon getIcon(boolean unused) {
+                return CfgIcons.FILE;
+            }
+        };
+    }
 }
