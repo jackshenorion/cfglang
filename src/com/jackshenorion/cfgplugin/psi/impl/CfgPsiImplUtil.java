@@ -63,11 +63,11 @@ public class CfgPsiImplUtil {
     }
 
     public static PsiElement setName(CfgProperty element, String newName) {
-        ASTNode keyNode = element.getNode().findChildByType(CfgTypes.VALUE);
-        if (keyNode != null) {
+        ASTNode value = element.getNode().findChildByType(CfgTypes.VALUE);
+        if (value != null) {
             CfgProperty property = CfgElementFactory.createProperty(element.getProject(), newName);
-            ASTNode newKeyNode = property.getFirstChild().getNode();
-            element.getNode().replaceChild(keyNode, newKeyNode);
+            ASTNode newValueNode = property.getNode().findChildByType(CfgTypes.VALUE);
+            element.getNode().replaceChild(value, newValueNode);
         }
         return element;
     }

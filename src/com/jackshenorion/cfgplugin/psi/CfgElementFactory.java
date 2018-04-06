@@ -7,7 +7,7 @@ import com.jackshenorion.cfgplugin.CfgFileType;
 
 public class CfgElementFactory {
     public static CfgProperty createProperty(Project project, String name) {
-        final CfgFile file = createFile(project, name);
+        final CfgFile file = createFile(project, "myKey" + "=" + name);
         return (CfgProperty) file.getFirstChild();
     }
 
