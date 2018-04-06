@@ -12,7 +12,7 @@ public class CfgElementFactory {
     }
 
     public static CfgSegment createSegment(Project project, String name) {
-        final CfgFile file = createFile(project, name);
+        final CfgFile file = createFile(project, "[" + name + "]");
         return (CfgSegment) file.getFirstChild();
     }
 

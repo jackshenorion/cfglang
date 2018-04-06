@@ -7,11 +7,15 @@ import com.intellij.psi.search.*;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.indexing.FileBasedIndex;
 import com.jackshenorion.cfgplugin.psi.*;
+import org.fest.util.Strings;
 
 import java.util.*;
 
 public class CfgUtil {
     public static List<CfgProperty> findProperties(Project project, String key) {
+        if (Strings.isNullOrEmpty(key)) {
+            return Collections.emptyList();
+        }
         List<CfgProperty> result = null;
         Collection<VirtualFile> virtualFiles =
                 FileBasedIndex.getInstance().getContainingFiles(FileTypeIndex.NAME, CfgFileType.INSTANCE,
@@ -53,6 +57,9 @@ public class CfgUtil {
     }
 
     public static List<CfgSegment> findSegments(Project project, String segmentName) {
+        if (Strings.isNullOrEmpty(segmentName)) {
+            return Collections.emptyList();
+        }
         List<CfgSegment> result = null;
         Collection<VirtualFile> virtualFiles =
                 FileBasedIndex.getInstance().getContainingFiles(FileTypeIndex.NAME, CfgFileType.INSTANCE,

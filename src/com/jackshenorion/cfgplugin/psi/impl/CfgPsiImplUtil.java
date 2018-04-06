@@ -43,7 +43,7 @@ public class CfgPsiImplUtil {
         ASTNode segmentNameNode = element.getNode().findChildByType(CfgTypes.SEGMENT_NAME);
         if (segmentNameNode != null) {
             CfgSegment segment = CfgElementFactory.createSegment(element.getProject(), newName);
-            ASTNode newKeyNode = segment.getFirstChild().getNode();
+            ASTNode newKeyNode = segment.getNameIdentifier().getNode();
             element.getNode().replaceChild(segmentNameNode, newKeyNode);
         }
         return element;
@@ -87,5 +87,14 @@ public class CfgPsiImplUtil {
 
     public static PsiReference[] getReferences(CfgSegment element) {
         return ReferenceProvidersRegistry.getReferencesFromProviders(element, CfgSegmentImpl.class);
+    }
+
+    public static PsiElement rename(PsiElement element, String newName) {
+        if (element instanceof CfgProperty) {
+            setName((CfgProperty) element, newName);
+        } else if (element instanceof CfgSegment){
+            setName((CfgSegment) element, newName);
+        }
+        return element;
     }
 }

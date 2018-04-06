@@ -22,7 +22,7 @@ public class CfgReferenceContributor extends PsiReferenceContributor {
     @Override
     public void registerReferenceProviders(@NotNull PsiReferenceRegistrar registrar) {
 
-        registrar.registerReferenceProvider(PlatformPatterns.psiElement(CfgTypes.PROPERTY),
+        registrar.registerReferenceProvider(PlatformPatterns.psiElement(CfgProperty.class),
                 new PsiReferenceProvider() {
                     @NotNull
                     @Override
@@ -35,20 +35,20 @@ public class CfgReferenceContributor extends PsiReferenceContributor {
                                 (String) property.getValue() : null;
                         if (key != null && needJob(key) && value != null) {
                             return new PsiReference[]{
-                                    new CfgReference(element, new TextRange(4, value.length() + 4))};
+                                    new CfgReference(element, new TextRange(key.length() + 1, value.length() + key.length() + 1))};
                         }
                         return PsiReference.EMPTY_ARRAY;
                     }
                 });
 
-        registrar.registerReferenceProvider(PlatformPatterns.psiElement(CfgSegmentImpl.class),
+        registrar.registerReferenceProvider(PlatformPatterns.psiElement(CfgSegment.class),
                 new PsiReferenceProvider() {
                     @NotNull
                     @Override
                     public PsiReference[] getReferencesByElement(@NotNull PsiElement element,
                                                                  @NotNull ProcessingContext
                                                                          context) {
-                        CfgSegmentImpl segment = (CfgSegmentImpl) element;
+                        CfgSegment segment = (CfgSegment) element;
                         String name = segment.getName() instanceof String ?
                                 (String) segment.getName() : null;
                         if (name != null) {

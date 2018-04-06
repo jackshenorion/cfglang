@@ -4,8 +4,10 @@ import com.intellij.codeInsight.lookup.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
+import com.intellij.util.IncorrectOperationException;
 import com.jackshenorion.cfgplugin.psi.CfgProperty;
 import com.jackshenorion.cfgplugin.psi.CfgSegment;
+import com.jackshenorion.cfgplugin.psi.impl.CfgPsiImplUtil;
 import org.jetbrains.annotations.*;
 
 import java.util.*;
@@ -65,6 +67,12 @@ public class CfgReference extends PsiReferenceBase<PsiElement> implements PsiPol
             }
         }
         return variants.toArray();
+    }
+
+    @Override
+    public PsiElement handleElementRename(String newElementName) throws IncorrectOperationException {
+        CfgPsiImplUtil.rename(myElement, newElementName);
+        return myElement;
     }
 }
 
