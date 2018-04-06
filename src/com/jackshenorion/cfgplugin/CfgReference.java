@@ -54,7 +54,7 @@ public class CfgReference extends PsiReferenceBase<PsiElement> implements PsiPol
             if (property.getKey() != null && property.getKey().length() > 0) {
                 variants.add(LookupElementBuilder.create(property).
                         withIcon(CfgIcons.FILE).
-                        withTypeText(property.getContainingFile().getName())
+                        withTypeText(property.getContainingFile().getName() + ":" + property.getContainingFile().getContainingDirectory().getName())
                 );
             }
         }
@@ -62,7 +62,7 @@ public class CfgReference extends PsiReferenceBase<PsiElement> implements PsiPol
             if (segment.getName() != null && segment.getName().length() > 0) {
                 variants.add(LookupElementBuilder.create(segment).
                         withIcon(CfgIcons.FILE).
-                        withTypeText(segment.getContainingFile().getName())
+                        withTypeText(segment.getContainingFile().getName() + ":" + segment.getContainingFile().getContainingDirectory().getName())
                 );
             }
         }

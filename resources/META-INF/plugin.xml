@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.nasdaq.smarts.control.cfgplugin</id>
     <name>Smarts Control Cfg Plugin</name>
-    <version>1.0</version>
+    <version>1.0.0 beta</version>
     <vendor email="jack.shen@nasdaq.com" url="http://www.nasdaq.com">Smarts Group</vendor>
 
     <description><![CDATA[
