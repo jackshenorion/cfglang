@@ -1,5 +1,5 @@
 <idea-plugin>
-    <id>com.nasdaq.smarts.control.cfgplugin</id>
+    <id>com.jackshenorion.cfgplugin</id>
     <name>Smarts Control Cfg Plugin</name>
     <version>1.0.0 beta</version>
     <vendor email="jack.shen@nasdaq.com" url="http://www.nasdaq.com">Smarts Group</vendor>
@@ -21,6 +21,12 @@
     <!-- uncomment to enable plugin in all products
     <depends>com.intellij.modules.lang</depends>
     -->
+    <project-components>
+        <component>
+            <implementation-class>com.jackshenorion.cfgplugin.CfgPluginController</implementation-class>
+        </component>
+    </project-components>
+
 
     <extensions defaultExtensionNs="com.intellij">
         <fileTypeFactory implementation="com.jackshenorion.cfgplugin.CfgFileTypeFactory"/>
