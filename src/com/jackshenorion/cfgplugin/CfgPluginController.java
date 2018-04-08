@@ -26,6 +26,9 @@ import com.intellij.openapi.vfs.*;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
+import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.messages.MessageBusConnection;
@@ -296,6 +299,10 @@ public class CfgPluginController implements ProjectComponent {
             Document doc = e.getEditor().getDocument();
             VirtualFile vfile = FileDocumentManager.getInstance().getFile(doc);
             if ( vfile!=null ) {
+                PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(doc);
+                e.getEditor().getCaretModel().getOffset();
+                PsiElement element = psiFile.findElementAt(e.getEditor().getCaretModel().getOffset());
+                System.out.println("PSI element selected:" + element.getText());
                 mouseEnteredGrammarEditorEvent(vfile, e);
             }
         }
