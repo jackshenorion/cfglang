@@ -11,6 +11,8 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.editor.actionSystem.EditorActionManager;
+import com.intellij.openapi.editor.actionSystem.TypedAction;
 import com.intellij.openapi.editor.event.EditorFactoryAdapter;
 import com.intellij.openapi.editor.event.EditorFactoryEvent;
 import com.intellij.openapi.editor.event.EditorMouseAdapter;
@@ -27,6 +29,7 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.messages.MessageBusConnection;
+import com.jackshenorion.cfgplugin.controller.MyTypedHandler;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -127,6 +130,10 @@ public class CfgPluginController implements ProjectComponent {
         LOG.info("installListeners "+project.getName());
         // Listen for .g4 file saves
         VirtualFileManager.getInstance().addVirtualFileListener(myVirtualFileAdapter);
+
+//        final EditorActionManager actionManager = EditorActionManager.getInstance();
+//        final TypedAction typedAction = actionManager.getTypedAction();
+//        typedAction.setupHandler(new MyTypedHandler());
 
         // Listen for editor window changes
         MessageBusConnection msgBus = project.getMessageBus().connect(project);

@@ -27,9 +27,11 @@ public class CfgAnnotator implements Annotator {
                             element.getTextRange().getStartOffset() + 3);
                     holder.createInfoAnnotation(range, null);
                 } else if (segments.size() == 0) {
-                    TextRange range = new TextRange(element.getTextRange().getStartOffset() + 4,
-                            element.getTextRange().getEndOffset());
-                    holder.createErrorAnnotation(range, "Undefined job");
+                    if (value != null && value.length() > 0) {
+                        TextRange range = new TextRange(element.getTextRange().getStartOffset() + 4,
+                                element.getTextRange().getEndOffset());
+                        holder.createErrorAnnotation(range, "Undefined job");
+                    }
                 } else {
                     TextRange range = new TextRange(element.getTextRange().getStartOffset() + 4,
                             element.getTextRange().getEndOffset());
