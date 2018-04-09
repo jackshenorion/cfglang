@@ -31,11 +31,13 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
+import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.messages.MessageBusConnection;
 import com.jackshenorion.cfgplugin.controller.MyTypedHandler;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
 
 
 public class CfgPluginController implements ProjectComponent {
@@ -96,7 +98,9 @@ public class CfgPluginController implements ProjectComponent {
 		LOG.info("createToolWindows "+project.getName());
 		ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
 
-		JLabel previewPanel = new JLabel("Hello, World!");
+        createTree();
+		JPanel previewPanel = new JPanel();
+		previewPanel.add(tree);
 
 		ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
 		Content content = contentFactory.createContent(previewPanel, "", false);
@@ -116,6 +120,16 @@ public class CfgPluginController implements ProjectComponent {
 		consoleWindow.getContentManager().addContent(content);
 		consoleWindow.setIcon(CfgIcons.FILE);
 	}
+
+    private Tree tree;
+	private void createTree() {
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Root");
+        DefaultMutableTreeNode vegetableNode = new DefaultMutableTreeNode("Vegetables");
+        DefaultMutableTreeNode fruitNode = new DefaultMutableTreeNode("Fruits");
+        root.add(vegetableNode);
+        root.add(fruitNode);
+        tree = new Tree(root);
+    }
 
 	@Override
 	public void projectClosed() {
