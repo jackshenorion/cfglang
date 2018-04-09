@@ -29,15 +29,19 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.messages.MessageBusConnection;
 import com.jackshenorion.cfgplugin.controller.MyTypedHandler;
+import org.apache.commons.imaging.formats.jpeg.JpegConstants;
 import org.jetbrains.annotations.NotNull;
+import sun.tools.jstat.Alignment;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
+import java.awt.*;
 
 
 public class CfgPluginController implements ProjectComponent {
@@ -55,7 +59,7 @@ public class CfgPluginController implements ProjectComponent {
 	public ToolWindow consoleWindow;
 
 	public ToolWindow previewWindow;	// same for all grammar editor
-	public JLabel previewPanel;	// same for all grammar editor
+	public JPanel previewPanel;	// same for all grammar editor
 
     public MyVirtualFileAdapter myVirtualFileAdapter = new MyVirtualFileAdapter();
     public MyFileEditorManagerAdapter myFileEditorManagerAdapter = new MyFileEditorManagerAdapter();
@@ -99,8 +103,7 @@ public class CfgPluginController implements ProjectComponent {
 		ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
 
         createTree();
-		JPanel previewPanel = new JPanel();
-		previewPanel.add(tree);
+		createPreviewPanel();
 
 		ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
 		Content content = contentFactory.createContent(previewPanel, "", false);
@@ -121,13 +124,17 @@ public class CfgPluginController implements ProjectComponent {
 		consoleWindow.setIcon(CfgIcons.FILE);
 	}
 
+	private JPanel createPreviewPanel() {
+        previewPanel = new JPanel(new BorderLayout());
+        previewPanel.add(new JBScrollPane(tree), BorderLayout.CENTER);
+        previewPanel.setBackground(Color.WHITE);
+        return previewPanel;
+    }
+
     private Tree tree;
 	private void createTree() {
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Root");
-        DefaultMutableTreeNode vegetableNode = new DefaultMutableTreeNode("Vegetables");
-        DefaultMutableTreeNode fruitNode = new DefaultMutableTreeNode("Fruits");
-        root.add(vegetableNode);
-        root.add(fruitNode);
+        CfgUtil.findSegments(project).forEach(cfgSegment -> root.add(new DefaultMutableTreeNode(cfgSegment.getName())));
         tree = new Tree(root);
     }
 
