@@ -67,7 +67,7 @@ public class CfgUtil {
         return result;
     }
 
-    private static List<CfgSegment> findSegments(Project project, VirtualFile currentFile) {
+    public static List<CfgSegment> findSegments(Project project, VirtualFile currentFile) {
         List<CfgSegment> result = new ArrayList<CfgSegment>();
         findCfgFilesInSameScope(project, currentFile).forEach(cfgFile -> {
             CfgSegment[] segments = PsiTreeUtil.getChildrenOfType(cfgFile, CfgSegment.class);
@@ -78,7 +78,7 @@ public class CfgUtil {
         return result;
     }
 
-    private static List<CfgFile> findCfgFilesInSameScope(Project project, VirtualFile virtualFile) {
+    public static List<CfgFile> findCfgFilesInSameScope(Project project, VirtualFile virtualFile) {
         if (!isCfgVirtualFile(virtualFile)) {
             return Collections.emptyList();
         }
@@ -111,14 +111,18 @@ public class CfgUtil {
                 || fileToMatch.getParent().getCanonicalPath().equals(fileToCheck.getParent().getCanonicalPath());
     }
 
-    private static boolean isCfgVirtualFile(VirtualFile virtualFile) {
+    public static boolean isCfgVirtualFile(VirtualFile virtualFile) {
         return virtualFile != null
                 && !virtualFile.isDirectory()
                 && (virtualFile.getName().startsWith(CfgFileType.PREFIX_SMARTSCONTROL) || virtualFile.getName().startsWith(CfgFileType.PREFIX_STANDARDCONTROL))
                 && virtualFile.getName().endsWith(".cfg");
     }
 
-    public static boolean isStandardCfgFile(String fileName) {
+    private static boolean isStandardCfgFile(String fileName) {
         return fileName.startsWith(CfgFileType.PREFIX_STANDARDCONTROL);
+    }
+
+    public static boolean needJob(String key) {
+        return key.equals("job") || key.equals("waitJob");
     }
 }

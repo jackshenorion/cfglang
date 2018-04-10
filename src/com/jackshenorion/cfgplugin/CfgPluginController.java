@@ -23,16 +23,11 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.messages.MessageBusConnection;
+import com.jackshenorion.cfgplugin.view.CfgViewerPanel;
 import org.jetbrains.annotations.NotNull;
-
-import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
-import java.awt.*;
 
 
 public class CfgPluginController implements ProjectComponent {
@@ -46,7 +41,7 @@ public class CfgPluginController implements ProjectComponent {
 
     public Project project;
     public ToolWindow previewWindow;
-    public JPanel previewPanel;
+    public CfgViewerPanel previewPanel;
 
     public MyVirtualFileAdapter myVirtualFileAdapter = new MyVirtualFileAdapter();
     public MyFileEditorManagerAdapter myFileEditorManagerAdapter = new MyFileEditorManagerAdapter();
@@ -66,6 +61,10 @@ public class CfgPluginController implements ProjectComponent {
             LOG.error("getInstance: getComponent() for " + project.getName() + " returns null");
         }
         return pc;
+    }
+
+    public Project getProject() {
+        return project;
     }
 
     @Override
@@ -88,29 +87,13 @@ public class CfgPluginController implements ProjectComponent {
     public void createToolWindows() {
         LOG.info("createToolWindows " + project.getName());
         ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
-        createTree();
-        createPreviewPanel();
+        previewPanel = new CfgViewerPanel(this);
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(previewPanel, "", false);
 
         previewWindow = toolWindowManager.registerToolWindow(PREVIEW_WINDOW_ID, false, ToolWindowAnchor.RIGHT);
         previewWindow.getContentManager().addContent(content);
         previewWindow.setIcon(CfgIcons.FILE);
-    }
-
-    private JPanel createPreviewPanel() {
-        previewPanel = new JPanel(new BorderLayout());
-        previewPanel.add(new JBScrollPane(tree), BorderLayout.CENTER);
-        previewPanel.setBackground(Color.WHITE);
-        return previewPanel;
-    }
-
-    private Tree tree;
-
-    private void createTree() {
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Root");
-        CfgUtil.findSegments(project).forEach(cfgSegment -> root.add(new DefaultMutableTreeNode(cfgSegment.getName())));
-        tree = new Tree(root);
     }
 
     @Override
@@ -189,12 +172,9 @@ public class CfgPluginController implements ProjectComponent {
     private class MyVirtualFileAdapter implements VirtualFileListener {
         @Override
         public void contentsChanged(VirtualFileEvent event) {
-
-            // refresh the tree of the package
-
-//            final VirtualFile vfile = event.getFile();
-//            if ( !vfile.getName().endsWith(".cfg") ) return;
-//            if ( !projectIsClosed ) onFileEvent(vfile.getName() + " contentsChanged");
+            if (CfgUtil.isCfgVirtualFile(event.getFile()) && !projectIsClosed) {
+                previewPanel.resetTree(event.getFile());
+            }
         }
 
         @Override
@@ -221,7 +201,9 @@ public class CfgPluginController implements ProjectComponent {
     private class MyFileEditorManagerAdapter implements FileEditorManagerListener {
         @Override
         public void selectionChanged(FileEditorManagerEvent event) {
-            // if a cfg file is selected, select the table to this package
+            if (CfgUtil.isCfgVirtualFile(event.getNewFile()) && !projectIsClosed) {
+                previewPanel.resetTree(event.getNewFile());
+            }
         }
 
         @Override
@@ -230,6 +212,9 @@ public class CfgPluginController implements ProjectComponent {
 
         @Override
         public void fileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
+            if (CfgUtil.isCfgVirtualFile(file) && !projectIsClosed) {
+                previewPanel.resetTree(file);
+            }
         }
     }
 
