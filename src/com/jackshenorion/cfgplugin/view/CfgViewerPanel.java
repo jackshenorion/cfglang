@@ -29,7 +29,7 @@ public class CfgViewerPanel extends JPanel{
 
     public void resetTree(VirtualFile virtualFile) {
         this.model = new CfgViewerTreeModel(this.cfgPluginController);
-        this.model.setCfgFiles(CfgUtil.findCfgFilesInSameScope(project, virtualFile));
+        this.model.setCfgFiles(CfgUtil.findNormalCfgFiles(project, virtualFile), CfgUtil.findStandardCfgFiles(project));
         this.tree.setModel(this.model);
     }
 }

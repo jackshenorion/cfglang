@@ -12,6 +12,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class CfgUtil {
+    public static final String PROPERTY_KEY_JOBCLASS = "jobClass";
+
     public static List<CfgSegment> findSegments(Project project, String segmentName) {
         if (segmentName == null) {
             return Collections.emptyList();
@@ -83,7 +85,30 @@ public class CfgUtil {
             return Collections.emptyList();
         }
         return findAllCfgVirtualFiles(project).stream()
-                .filter(fileToCheck -> sameScope(virtualFile, fileToCheck))
+                .filter(fileToCheck -> isSamePackage(virtualFile, fileToCheck) || isStandardCfgFile(fileToCheck))
+                .map(vfile -> PsiManager.getInstance(project).findFile(vfile))
+                .filter(file -> file instanceof CfgFile)
+                .map(file -> (CfgFile) file)
+                .filter(cfgFile -> cfgFile != null)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public static List<CfgFile> findNormalCfgFiles(Project project, VirtualFile virtualFile) {
+        if (!isCfgVirtualFile(virtualFile)) {
+            return Collections.emptyList();
+        }
+        return findAllCfgVirtualFiles(project).stream()
+                .filter(fileToCheck -> isSamePackage(virtualFile, fileToCheck))
+                .map(vfile -> PsiManager.getInstance(project).findFile(vfile))
+                .filter(file -> file instanceof CfgFile)
+                .map(file -> (CfgFile) file)
+                .filter(cfgFile -> cfgFile != null)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public static List<CfgFile> findStandardCfgFiles(Project project) {
+        return findAllCfgVirtualFiles(project).stream()
+                .filter(fileToCheck -> isStandardCfgFile(fileToCheck))
                 .map(vfile -> PsiManager.getInstance(project).findFile(vfile))
                 .filter(file -> file instanceof CfgFile)
                 .map(file -> (CfgFile) file)
@@ -106,9 +131,12 @@ public class CfgUtil {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    private static boolean sameScope(VirtualFile fileToMatch, VirtualFile fileToCheck) {
-        return isStandardCfgFile(fileToCheck.getName())
-                || fileToMatch.getParent().getCanonicalPath().equals(fileToCheck.getParent().getCanonicalPath());
+    private static boolean isSamePackage(VirtualFile fileToMatch, VirtualFile fileToCheck) {
+        return fileToMatch.getParent().getCanonicalPath().equals(fileToCheck.getParent().getCanonicalPath());
+    }
+
+    private static boolean isStandardCfgFile(VirtualFile fileToCheck) {
+        return isStandardCfgFile(fileToCheck.getName());
     }
 
     public static boolean isCfgVirtualFile(VirtualFile virtualFile) {
