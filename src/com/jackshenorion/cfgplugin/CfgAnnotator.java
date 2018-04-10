@@ -4,6 +4,7 @@ import com.intellij.lang.annotation.*;
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.jackshenorion.cfgplugin.psi.CfgSegment;
 import com.jackshenorion.cfgplugin.psi.impl.CfgPropertyImpl;
@@ -21,7 +22,7 @@ public class CfgAnnotator implements Annotator {
             String value = property.getValue();
             if (key != null && key.equals("job")) {
                 Project project = element.getProject();
-                List<CfgSegment> segments = CfgUtil.findSegments(project, value);
+                List<CfgSegment> segments = CfgUtil.findSegments(project, value, element);
                 if (segments.size() == 1) {
                     TextRange range = new TextRange(element.getTextRange().getStartOffset() + 3,
                             element.getTextRange().getStartOffset() + 3);
@@ -43,7 +44,7 @@ public class CfgAnnotator implements Annotator {
             String segmentName = segment.getName();
             if (segmentName != null && !segmentName.equals("General")) {
                 Project project = element.getProject();
-                List<CfgSegment> segments = CfgUtil.findSegments(project, segmentName);
+                List<CfgSegment> segments = CfgUtil.findSegments(project, segmentName, element);
                 if (segments.size() > 1) {
                     TextRange range = new TextRange(element.getTextRange().getStartOffset(),
                             element.getTextRange().getEndOffset());

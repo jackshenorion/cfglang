@@ -5,6 +5,7 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.project.Project;
 import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiManager;
 import com.intellij.util.ProcessingContext;
 import com.jackshenorion.cfgplugin.psi.CfgSegment;
 import com.jackshenorion.cfgplugin.psi.CfgTypes;
@@ -42,7 +43,7 @@ public class CfgCompletionContributor extends CompletionContributor {
                 int endPosition = value.indexOf(DUMMY_IDENTIFIER);
                 String inputString = endPosition >= 0 ? value.substring(0, endPosition) : value;
                 Project project = element.getProject();
-                List<CfgSegment> segments = CfgUtil.findSegments(project);
+                List<CfgSegment> segments = CfgUtil.findSegments(project, element);
                 for (CfgSegment segment : segments) {
                     if (segment.getName().startsWith(inputString)) {
                         resultSet.addElement(LookupElementBuilder.create(segment.getName()));

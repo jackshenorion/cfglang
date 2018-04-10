@@ -1,18 +1,12 @@
 package com.jackshenorion.cfgplugin;
 
-import com.intellij.execution.filters.TextConsoleBuilder;
-import com.intellij.execution.filters.TextConsoleBuilderFactory;
-import com.intellij.execution.ui.ConsoleView;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManager;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
-import com.intellij.openapi.editor.actionSystem.EditorActionManager;
-import com.intellij.openapi.editor.actionSystem.TypedAction;
 import com.intellij.openapi.editor.event.EditorFactoryAdapter;
 import com.intellij.openapi.editor.event.EditorFactoryEvent;
 import com.intellij.openapi.editor.event.EditorMouseAdapter;
@@ -34,10 +28,7 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.treeStructure.Tree;
 import com.intellij.util.messages.MessageBusConnection;
-import com.jackshenorion.cfgplugin.controller.MyTypedHandler;
-import org.apache.commons.imaging.formats.jpeg.JpegConstants;
 import org.jetbrains.annotations.NotNull;
-import sun.tools.jstat.Alignment;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -45,86 +36,69 @@ import java.awt.*;
 
 
 public class CfgPluginController implements ProjectComponent {
-	public static final String PLUGIN_ID = "com.jackshenorion.cfgplugin";
+    public static final String PLUGIN_ID = "com.jackshenorion.cfgplugin";
 
-	public static final Logger LOG = Logger.getInstance("CfgPluginController");
+    public static final Logger LOG = Logger.getInstance("CfgPluginController");
 
-	public static final String PREVIEW_WINDOW_ID = "Cfg Preview";
-	public static final String CONSOLE_WINDOW_ID = "Tool Output";
+    public static final String PREVIEW_WINDOW_ID = "Cfg Tree View";
 
-	public boolean projectIsClosed = false;
+    public boolean projectIsClosed = false;
 
-	public Project project;
-	public ConsoleView console;
-	public ToolWindow consoleWindow;
-
-	public ToolWindow previewWindow;	// same for all grammar editor
-	public JPanel previewPanel;	// same for all grammar editor
+    public Project project;
+    public ToolWindow previewWindow;
+    public JPanel previewPanel;
 
     public MyVirtualFileAdapter myVirtualFileAdapter = new MyVirtualFileAdapter();
     public MyFileEditorManagerAdapter myFileEditorManagerAdapter = new MyFileEditorManagerAdapter();
     public static final Key<GrammarEditorMouseAdapter> EDITOR_MOUSE_LISTENER_KEY = Key.create("EDITOR_MOUSE_LISTENER_KEY");
 
     public CfgPluginController(Project project) {
-		this.project = project;
-	}
+        this.project = project;
+    }
 
-	public static CfgPluginController getInstance(Project project) {
-		if ( project==null ) {
-			LOG.error("getInstance: project is null");
-			return null;
-		}
-		CfgPluginController pc = project.getComponent(CfgPluginController.class);
-		if ( pc==null ) {
-			LOG.error("getInstance: getComponent() for "+project.getName()+" returns null");
-		}
-		return pc;
-	}
+    public static CfgPluginController getInstance(Project project) {
+        if (project == null) {
+            LOG.error("getInstance: project is null");
+            return null;
+        }
+        CfgPluginController pc = project.getComponent(CfgPluginController.class);
+        if (pc == null) {
+            LOG.error("getInstance: getComponent() for " + project.getName() + " returns null");
+        }
+        return pc;
+    }
 
-	@Override
-	public void initComponent() {
-	}
+    @Override
+    public void initComponent() {
+    }
 
-	@Override
-	public void projectOpened() {
-		IdeaPluginDescriptor plugin = PluginManager.getPlugin(PluginId.getId(PLUGIN_ID));
-		String version = "unknown";
-		if ( plugin!=null ) {
-			version = plugin.getVersion();
-		}
-		LOG.info("Smarts Control Cfg Plugin version "+version+", Java version "+ SystemInfo.JAVA_VERSION);
-		// make sure the tool windows are created early
-		createToolWindows();
+    @Override
+    public void projectOpened() {
+        IdeaPluginDescriptor plugin = PluginManager.getPlugin(PluginId.getId(PLUGIN_ID));
+        String version = "unknown";
+        if (plugin != null) {
+            version = plugin.getVersion();
+        }
+        LOG.info("Smarts Control Cfg Plugin version " + version + ", Java version " + SystemInfo.JAVA_VERSION);
+        // make sure the tool windows are created early
+        createToolWindows();
         installListeners();
-	}
+    }
 
-	public void createToolWindows() {
-		LOG.info("createToolWindows "+project.getName());
-		ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
-
+    public void createToolWindows() {
+        LOG.info("createToolWindows " + project.getName());
+        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
         createTree();
-		createPreviewPanel();
+        createPreviewPanel();
+        ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
+        Content content = contentFactory.createContent(previewPanel, "", false);
 
-		ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-		Content content = contentFactory.createContent(previewPanel, "", false);
+        previewWindow = toolWindowManager.registerToolWindow(PREVIEW_WINDOW_ID, false, ToolWindowAnchor.RIGHT);
+        previewWindow.getContentManager().addContent(content);
+        previewWindow.setIcon(CfgIcons.FILE);
+    }
 
-		previewWindow = toolWindowManager.registerToolWindow(PREVIEW_WINDOW_ID, false, ToolWindowAnchor.RIGHT);
-		previewWindow.getContentManager().addContent(content);
-		previewWindow.setIcon(CfgIcons.FILE);
-
-		TextConsoleBuilderFactory factory = TextConsoleBuilderFactory.getInstance();
-		TextConsoleBuilder consoleBuilder = factory.createBuilder(project);
-		this.console = consoleBuilder.getConsole();
-
-		JComponent consoleComponent = console.getComponent();
-		content = contentFactory.createContent(consoleComponent, "", false);
-
-		consoleWindow = toolWindowManager.registerToolWindow(CONSOLE_WINDOW_ID, true, ToolWindowAnchor.BOTTOM);
-		consoleWindow.getContentManager().addContent(content);
-		consoleWindow.setIcon(CfgIcons.FILE);
-	}
-
-	private JPanel createPreviewPanel() {
+    private JPanel createPreviewPanel() {
         previewPanel = new JPanel(new BorderLayout());
         previewPanel.add(new JBScrollPane(tree), BorderLayout.CENTER);
         previewPanel.setBackground(Color.WHITE);
@@ -132,27 +106,25 @@ public class CfgPluginController implements ProjectComponent {
     }
 
     private Tree tree;
-	private void createTree() {
+
+    private void createTree() {
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Root");
         CfgUtil.findSegments(project).forEach(cfgSegment -> root.add(new DefaultMutableTreeNode(cfgSegment.getName())));
         tree = new Tree(root);
     }
 
-	@Override
-	public void projectClosed() {
-		LOG.info("projectClosed " + project.getName());
+    @Override
+    public void projectClosed() {
+        LOG.info("projectClosed " + project.getName());
         uninstallListeners();
-		projectIsClosed = true;
-		console.dispose();
-		previewPanel = null;
-		previewWindow = null;
-		consoleWindow = null;
-		project = null;
-	}
+        projectIsClosed = true;
+        previewPanel = null;
+        previewWindow = null;
+        project = null;
+    }
 
     public void installListeners() {
-        LOG.info("installListeners "+project.getName());
-        // Listen for .g4 file saves
+        LOG.info("installListeners " + project.getName());
         VirtualFileManager.getInstance().addVirtualFileListener(myVirtualFileAdapter);
 
 //        final EditorActionManager actionManager = EditorActionManager.getInstance();
@@ -174,7 +146,7 @@ public class CfgPluginController implements ProjectComponent {
                         final Editor editor = event.getEditor();
                         final Document doc = editor.getDocument();
                         VirtualFile vfile = FileDocumentManager.getInstance().getFile(doc);
-                        if ( vfile!=null && vfile.getName().endsWith(".cfg") ) {
+                        if (vfile != null && vfile.getName().endsWith(".cfg")) {
                             GrammarEditorMouseAdapter listener = new GrammarEditorMouseAdapter();
                             editor.putUserData(EDITOR_MOUSE_LISTENER_KEY, listener);
                             editor.addEditorMouseListener(listener);
@@ -204,113 +176,60 @@ public class CfgPluginController implements ProjectComponent {
         msgBus.disconnect();
     }
 
-
+    @NotNull
     @Override
-	public void disposeComponent() {
-	}
+    public String getComponentName() {
+        return "cfgplugin.ProjectComponent";
+    }
 
-	@NotNull
-	@Override
-	public String getComponentName() {
-		return "cfgplugin.ProjectComponent";
-	}
-
-	public ConsoleView getConsole() {
-		return console;
-	}
-
-	public ToolWindow getConsoleWindow() {
-		return consoleWindow;
-	}
-
-	public static void showConsoleWindow(final Project project) {
-		ApplicationManager.getApplication().invokeLater(
-			new Runnable() {
-				@Override
-				public void run() {
-					CfgPluginController.getInstance(project).getConsoleWindow().show(null);
-				}
-			}
-		);
-	}
-
-	public ToolWindow getPreviewWindow() {
-		return previewWindow;
-	}
+    public ToolWindow getPreviewWindow() {
+        return previewWindow;
+    }
 
     private class MyVirtualFileAdapter implements VirtualFileListener {
         @Override
         public void contentsChanged(VirtualFileEvent event) {
-            onFileEvent(event.getFile().getName() + " contentsChanged");
+
+            // refresh the tree of the package
+
 //            final VirtualFile vfile = event.getFile();
 //            if ( !vfile.getName().endsWith(".cfg") ) return;
 //            if ( !projectIsClosed ) onFileEvent(vfile.getName() + " contentsChanged");
         }
 
         @Override
-        public void propertyChanged(@NotNull VirtualFilePropertyEvent event) {
-            onFileEvent(event.getFile().getName() + " propertyChanged");
-        }
-
-        @Override
         public void fileCreated(@NotNull VirtualFileEvent event) {
-            onFileEvent(event.getFile().getName() + " fileCreated");
+            // refresh the tree of the package
         }
 
         @Override
         public void fileDeleted(@NotNull VirtualFileEvent event) {
-            onFileEvent(event.getFile().getName() + " fileDeleted");
+            // refresh the tree of the package
         }
 
         @Override
         public void fileMoved(@NotNull VirtualFileMoveEvent event) {
-            onFileEvent(event.getFile().getName() + " fileMoved");
+            // refresh the tree of the packages involved
         }
 
         @Override
         public void fileCopied(@NotNull VirtualFileCopyEvent event) {
-            onFileEvent(event.getFile().getName() + " fileCopied");
+            // refresh the tree of the packages involved
         }
-
-        @Override
-        public void beforePropertyChange(@NotNull VirtualFilePropertyEvent event) {
-            onFileEvent(event.getFile().getName() + " beforePropertyChange");
-        }
-
-        @Override
-        public void beforeContentsChange(@NotNull VirtualFileEvent event) {
-            onFileEvent(event.getFile().getName() + " beforeContentsChange");
-        }
-
-        @Override
-        public void beforeFileDeletion(@NotNull VirtualFileEvent event) {
-            onFileEvent(event.getFile().getName() + " beforeFileDeletion");
-        }
-
-        @Override
-        public void beforeFileMovement(@NotNull VirtualFileMoveEvent event) {
-            onFileEvent(event.getFile().getName() + " beforeFileMovement");
-        }
-    }
-
-    private void onFileEvent(String display) {
-	    System.out.println(display);
     }
 
     private class MyFileEditorManagerAdapter implements FileEditorManagerListener {
         @Override
         public void selectionChanged(FileEditorManagerEvent event) {
-            onFileEvent("selectionChanged: " + event);
+            // if a cfg file is selected, select the table to this package
         }
 
         @Override
         public void fileClosed(FileEditorManager source, VirtualFile file) {
-            onFileEvent("fileClosed: " + file.getName());
         }
 
         @Override
         public void fileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-            onFileEvent("fileOpened: " + file.getName());
         }
     }
 
@@ -319,19 +238,14 @@ public class CfgPluginController implements ProjectComponent {
         public void mouseClicked(EditorMouseEvent e) {
             Document doc = e.getEditor().getDocument();
             VirtualFile vfile = FileDocumentManager.getInstance().getFile(doc);
-            if ( vfile!=null ) {
+            if (vfile != null) {
                 PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(doc);
                 e.getEditor().getCaretModel().getOffset();
                 PsiElement element = psiFile.findElementAt(e.getEditor().getCaretModel().getOffset());
-                System.out.println("PSI element selected:" + element.getText());
-                mouseEnteredGrammarEditorEvent(vfile, e);
             }
+
+            // if mouse clicked, then go to the segment where the mouse clicked
         }
     }
-
-    public void mouseEnteredGrammarEditorEvent(VirtualFile vfile, EditorMouseEvent e) {
-        onFileEvent("mouseEnteredGrammarEditorEvent:" + vfile.getName() + ";" + e);
-    }
-
 
 }

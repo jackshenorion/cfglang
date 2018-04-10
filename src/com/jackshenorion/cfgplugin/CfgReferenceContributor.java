@@ -1,22 +1,12 @@
 package com.jackshenorion.cfgplugin;
 
-import com.intellij.codeInsight.lookup.LookupElementBuilder;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.*;
 import com.intellij.util.ProcessingContext;
-import com.jackshenorion.cfgplugin.psi.CfgElementType;
 import com.jackshenorion.cfgplugin.psi.CfgProperty;
 import com.jackshenorion.cfgplugin.psi.CfgSegment;
-import com.jackshenorion.cfgplugin.psi.CfgTypes;
-import com.jackshenorion.cfgplugin.psi.impl.CfgPropertyImpl;
-import com.jackshenorion.cfgplugin.psi.impl.CfgSegmentImpl;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
-
-import static com.intellij.codeInsight.completion.CompletionUtil.DUMMY_IDENTIFIER;
 
 public class CfgReferenceContributor extends PsiReferenceContributor {
     @Override

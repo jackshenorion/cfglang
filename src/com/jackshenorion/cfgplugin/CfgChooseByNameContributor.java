@@ -24,7 +24,6 @@ public class CfgChooseByNameContributor implements ChooseByNameContributor {
     @NotNull
     @Override
     public NavigationItem[] getItemsByName(String name, String pattern, Project project, boolean includeNonProjectItems) {
-        // todo include non project items
         List<CfgSegment> segments = CfgUtil.findSegments(project, name);
         return segments.toArray(new NavigationItem[segments.size()]);
     }
