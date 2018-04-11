@@ -163,7 +163,7 @@ public class CfgUtil {
     @Nullable
     private static VirtualFile getVirtualFile(Project project, PsiElement psiElement)
     {
-        if (psiElement == null || !psiElement.isValid() || psiElement.getContainingFile() == null)
+        if (psiElement == null || !psiElement.isValid() || psiElement.getContainingFile().getOriginalFile() == null)
         {
             return null;
         }
