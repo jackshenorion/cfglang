@@ -15,6 +15,6 @@ public class CfgViewerTreeCellRender extends ColoredTreeCellRenderer {
         append(jobInfo != null ?
                 ((jobInfo.isStandardJob() ? "Standard." : "")
                         + jobInfo.getJobClass().getName()
-                        + ":" + jobInfo.getName()) : "null");
+                        + ": " + jobInfo.getName()) : "null");
     }
 }

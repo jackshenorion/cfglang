@@ -31,13 +31,13 @@ import org.jetbrains.annotations.NotNull;
 
 
 public class CfgPluginController implements ProjectComponent {
-    public static final String PLUGIN_ID = "com.jackshenorion.cfgplugin";
-
     public static final Logger LOG = Logger.getInstance("CfgPluginController");
-
+    public static final String PLUGIN_ID = "com.jackshenorion.cfgplugin";
     public static final String PREVIEW_WINDOW_ID = "Cfg Tree View";
 
     public boolean projectIsClosed = false;
+    public boolean autoScrollToSource = true;
+    public boolean autoScrollFromSource = true;
 
     public Project project;
     public ToolWindow previewWindow;
@@ -65,6 +65,14 @@ public class CfgPluginController implements ProjectComponent {
 
     public Project getProject() {
         return project;
+    }
+
+    public boolean isAutoScrollToSource() {
+        return autoScrollToSource;
+    }
+
+    public boolean isAutoScrollFromSource() {
+        return autoScrollFromSource;
     }
 
     @Override
