@@ -130,7 +130,6 @@ public class CfgViewerPanel extends JPanel {
 
     private void changeTreeSelection(PsiElement element) {
         TreePath path = model.getPath(element);
-        tree.collapsePath(path);
         tree.expandPath(path);
         tree.scrollPathToVisible(path);
         tree.setSelectionPath(path);
