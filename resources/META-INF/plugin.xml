@@ -23,7 +23,7 @@
     -->
     <project-components>
         <component>
-            <implementation-class>com.jackshenorion.cfgplugin.CfgPluginController</implementation-class>
+            <implementation-class>com.jackshenorion.cfgplugin.controller.CfgPluginController</implementation-class>
         </component>
     </project-components>
 
@@ -43,24 +43,6 @@
     </extensions>
 
     <actions>
-        <!--<action id="EditorBasics.EditorIllustration"-->
-                <!--class="com.jackshenorion.cfgplugin.controller.EditorIllustration"-->
-                <!--text="Editor Basics"-->
-                <!--description="Illustrates how to plug an action in">-->
-            <!--<add-to-group group-id="EditorPopupMenu" anchor="first"/>-->
-        <!--</action>-->
-        <!--<action id="EditorBasics.EditorHandlerIllustration"-->
-                <!--class="com.jackshenorion.cfgplugin.controller.EditorHandlerIllustration"-->
-                <!--text="Editor Handler"-->
-                <!--description="Illustrates how to plug an action in">-->
-            <!--<add-to-group group-id="EditorPopupMenu" anchor="first"/>-->
-        <!--</action>-->
-        <!--<action id="EditorBasics.LogicalPositionIllustration"-->
-                <!--class="com.jackshenorion.cfgplugin.controller.EditorAreaIllustration"-->
-                <!--text="Caret Position"-->
-                <!--description="Illustrates how editor area is organized">-->
-            <!--<add-to-group group-id="EditorPopupMenu" anchor="first"/>-->
-        <!--</action>-->
     </actions>
 
 </idea-plugin>

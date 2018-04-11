@@ -1,6 +1,5 @@
 package com.jackshenorion.cfgplugin.view;
 
-import com.intellij.lang.Language;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
@@ -9,10 +8,9 @@ import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.ui.components.JBScrollPane;
 import com.jackshenorion.cfgplugin.CfgLanguage;
-import com.jackshenorion.cfgplugin.CfgPluginController;
+import com.jackshenorion.cfgplugin.controller.CfgPluginController;
 import com.jackshenorion.cfgplugin.CfgUtil;
 import com.jackshenorion.cfgplugin.model.CfgJobInfo;
 import com.jackshenorion.cfgplugin.model.CfgViewerTreeModel;

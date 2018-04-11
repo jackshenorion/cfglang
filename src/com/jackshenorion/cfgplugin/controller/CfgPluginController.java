@@ -1,4 +1,4 @@
-package com.jackshenorion.cfgplugin;
+package com.jackshenorion.cfgplugin.controller;
 
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManager;
@@ -26,7 +26,8 @@ import com.intellij.psi.PsiFile;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.messages.MessageBusConnection;
-import com.jackshenorion.cfgplugin.controller.EditorListener;
+import com.jackshenorion.cfgplugin.CfgIcons;
+import com.jackshenorion.cfgplugin.CfgUtil;
 import com.jackshenorion.cfgplugin.view.CfgViewerPanel;
 import org.jetbrains.annotations.NotNull;
 

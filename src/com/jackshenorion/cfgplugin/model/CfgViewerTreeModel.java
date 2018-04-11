@@ -2,7 +2,7 @@ package com.jackshenorion.cfgplugin.model;
 
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
-import com.jackshenorion.cfgplugin.CfgPluginController;
+import com.jackshenorion.cfgplugin.controller.CfgPluginController;
 import com.jackshenorion.cfgplugin.CfgUtil;
 import com.jackshenorion.cfgplugin.psi.CfgFile;
 import com.jackshenorion.cfgplugin.psi.CfgProperty;
