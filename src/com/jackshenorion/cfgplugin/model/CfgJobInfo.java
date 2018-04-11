@@ -3,11 +3,13 @@ package com.jackshenorion.cfgplugin.model;
 import com.jackshenorion.cfgplugin.CfgUtil;
 import com.jackshenorion.cfgplugin.psi.CfgProperty;
 import com.jackshenorion.cfgplugin.psi.CfgSegment;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
-public class CfgJobInfo {
+public class CfgJobInfo implements Comparable<CfgJobInfo> {
     private String name;
     private boolean isStandardJob = false;
     private boolean isRoot = false;
@@ -62,5 +64,10 @@ public class CfgJobInfo {
             }
         });
         return cfgJobClasses[0];
+    }
+
+    @Override
+    public int compareTo(@NotNull CfgJobInfo o) {
+        return this.getName().compareTo(o.getName());
     }
 }

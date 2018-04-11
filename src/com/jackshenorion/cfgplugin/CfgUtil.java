@@ -167,7 +167,7 @@ public class CfgUtil {
         {
             return null;
         }
-        return psiElement.getContainingFile().getVirtualFile();
+        return psiElement.getContainingFile().getOriginalFile().getVirtualFile();
     }
 
     @Nullable
@@ -178,7 +178,7 @@ public class CfgUtil {
             return null;
         }
 
-        return psiElement.getContainingFile();
+        return psiElement.getContainingFile().getOriginalFile();
     }
 
     public static boolean isElementInSelectedFile(Project project, PsiElement psiElement)

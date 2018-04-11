@@ -107,7 +107,6 @@ public class EditorListener extends CaretAdapter implements FileEditorManagerLis
 
 
     public void caretPositionChanged(CaretEvent event) {
-        final Editor editor = event.getEditor();
         _viewer.selectElementAtCaret();
     }
 

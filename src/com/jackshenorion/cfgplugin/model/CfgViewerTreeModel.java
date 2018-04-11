@@ -1,6 +1,5 @@
 package com.jackshenorion.cfgplugin.model;
 
-import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.jackshenorion.cfgplugin.CfgPluginController;
@@ -9,8 +8,8 @@ import com.jackshenorion.cfgplugin.psi.CfgFile;
 import com.jackshenorion.cfgplugin.psi.CfgProperty;
 import com.jackshenorion.cfgplugin.psi.CfgSegment;
 
+import javax.annotation.Nullable;
 import javax.swing.event.TreeModelListener;
-import javax.swing.text.Segment;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import java.util.*;
@@ -22,6 +21,7 @@ public class CfgViewerTreeModel implements TreeModel {
     private Map<String, List<String>> jobAdjacencyList;
     private Map<String, CfgJobInfo> standardJobs;
     private Map<String, CfgJobInfo> normalJobs;
+    private CfgJobInfo root;
 
     public CfgViewerTreeModel(CfgPluginController cfgPluginController) {
         this.cfgPluginController = cfgPluginController;
@@ -34,6 +34,7 @@ public class CfgViewerTreeModel implements TreeModel {
         this.jobAdjacencyList = new HashMap<>();
         this.standardJobs = new HashMap<>();
         this.normalJobs = new HashMap<>();
+        this.root = new CfgJobInfo("Root", false, true);
     }
 
     public void setCfgFiles(List<CfgFile> cfgFiles, List<CfgFile> baseCfgFiles) {
@@ -45,51 +46,51 @@ public class CfgViewerTreeModel implements TreeModel {
     }
 
     private void readStandardJobs() {
-        final CfgJobInfo[] currentJobInfo = {null};
-        standardCfgFiles.forEach(cfgFile -> {
-            currentJobInfo[0] = null;
+        CfgJobInfo currentJobInfo = null;
+        for (CfgFile cfgFile : standardCfgFiles) {
+            currentJobInfo = null;
             List<PsiElement> elements = PsiTreeUtil.getChildrenOfAnyType(cfgFile, CfgSegment.class, CfgProperty.class);
-            elements.forEach(element -> {
+            for (PsiElement element : elements) {
                 if (element instanceof CfgSegment) {
                     CfgSegment segment = (CfgSegment) element;
-                    currentJobInfo[0] = new CfgJobInfo(segment.getName(), true);
-                    standardJobs.put(segment.getName(), currentJobInfo[0]);
-                    currentJobInfo[0].setCfgSegment(segment);
+                    currentJobInfo = new CfgJobInfo(segment.getName(), true);
+                    standardJobs.put(segment.getName(), currentJobInfo);
+                    currentJobInfo.setCfgSegment(segment);
                 } else if (element instanceof CfgProperty) {
                     CfgProperty property = (CfgProperty) element;
-                    if (currentJobInfo[0] != null) {
-                        currentJobInfo[0].addCfgProperty(property);
+                    if (currentJobInfo != null) {
+                        currentJobInfo.addCfgProperty(property);
                     }
                 }
-            });
-        });
-
+            }
+        }
     }
 
     private void readNormalJobs() {
-        final CfgJobInfo[] currentJobInfo = {null};
-        normalCfgFiles.forEach(cfgFile -> {
-            currentJobInfo[0] = null;
+        CfgJobInfo currentJobInfo = null;
+        for (CfgFile cfgFile : normalCfgFiles) {
+            currentJobInfo = null;
             List<PsiElement> elements = PsiTreeUtil.getChildrenOfAnyType(cfgFile, CfgSegment.class, CfgProperty.class);
-            elements.forEach(element -> {
+            for (PsiElement element : elements) {
                 if (element instanceof CfgSegment) {
                     CfgSegment segment = (CfgSegment) element;
-                    currentJobInfo[0] = new CfgJobInfo(segment.getName(), false);
-                    normalJobs.put(segment.getName(), currentJobInfo[0]);
-                    currentJobInfo[0].setCfgSegment(segment);
+                    currentJobInfo = new CfgJobInfo(segment.getName(), false);
+                    normalJobs.put(segment.getName(), currentJobInfo);
+                    currentJobInfo.setCfgSegment(segment);
                     jobAdjacencyList.putIfAbsent(segment.getName(), new ArrayList<>());
                 } else if (element instanceof CfgProperty) {
                     CfgProperty property = (CfgProperty) element;
-                    if (currentJobInfo[0] != null) {
-                        currentJobInfo[0].addCfgProperty(property);
+                    if (currentJobInfo != null) {
+                        currentJobInfo.addCfgProperty(property);
                     }
-                    if (currentJobInfo[0] != null && CfgUtil.needJob(property.getKey())) {
-                        jobAdjacencyList.get(currentJobInfo[0].getName()).add(property.getValue());
+                    if (currentJobInfo != null && CfgUtil.needJob(property.getKey())) {
+                        jobAdjacencyList.get(currentJobInfo.getName()).add(property.getValue());
                     }
                 }
-            });
-        });
+            }
+        }
         jobAdjacencyList.put("Root", getRootJobs());
+        normalJobs.put("Root", root);
     }
 
     private List<String> getRootJobs() {
@@ -102,7 +103,7 @@ public class CfgViewerTreeModel implements TreeModel {
 
     @Override
     public Object getRoot() {
-        return new CfgJobInfo("Root", false, true);
+        return root;
     }
 
     @Override
@@ -143,6 +144,50 @@ public class CfgViewerTreeModel implements TreeModel {
 
     @Override
     public void removeTreeModelListener(TreeModelListener l) {
+
+    }
+
+    @Nullable
+    public CfgSegment getSegment(PsiElement element) {
+        return element instanceof CfgSegment ?
+                (CfgSegment) element : PsiTreeUtil.getPrevSiblingOfType(element, CfgSegment.class);
+    }
+
+    @Nullable
+    public CfgJobInfo getNode(CfgSegment segment) {
+        return normalJobs.get(segment.getName());
+    }
+
+    @Nullable
+    public CfgJobInfo getParent(CfgJobInfo node) {
+        for (String key : jobAdjacencyList.keySet()) {
+            if (jobAdjacencyList.get(key).contains(node.getName())) {
+                return normalJobs.get(key);
+            }
+        }
+        return null;
+    }
+
+    public TreePath getPath(PsiElement element) {
+        CfgSegment segment = getSegment(element);
+        if (segment == null) {
+            return null;
+        }
+
+        CfgJobInfo node = getNode(segment);
+        if (node == null) {
+            return null;
+        }
+
+        LinkedList list = new LinkedList();
+        while (node != null && node != root) {
+            list.addFirst(node);
+            node = getParent(node);
+        }
+        if (node != null)
+            list.addFirst(node);
+        TreePath treePath = new TreePath(list.toArray());
+        return treePath;
 
     }
 }
