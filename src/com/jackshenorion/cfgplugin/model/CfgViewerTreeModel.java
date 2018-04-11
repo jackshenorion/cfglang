@@ -43,6 +43,7 @@ public class CfgViewerTreeModel implements TreeModel {
         this.standardCfgFiles = baseCfgFiles;
         readStandardJobs();
         readNormalJobs();
+        addUndefinedJobs();
     }
 
     private void readStandardJobs() {
@@ -93,6 +94,17 @@ public class CfgViewerTreeModel implements TreeModel {
         normalJobs.put("Root", root);
     }
 
+    private void addUndefinedJobs() {
+        for (List<String> jobs : jobAdjacencyList.values()) {
+            for (String job : jobs) {
+                if (normalJobs.getOrDefault(job, standardJobs.get(job)) == null) {
+                    CfgJobInfo undefinedJob = new CfgJobInfo(job, false, false, true);
+                    normalJobs.put(job, undefinedJob);
+                }
+            }
+        }
+    }
+
     private List<String> getRootJobs() {
         Set<String> keySet = new HashSet<>(jobAdjacencyList.keySet());
         jobAdjacencyList.values().forEach(referencedJobs -> {
@@ -116,12 +128,18 @@ public class CfgViewerTreeModel implements TreeModel {
     @Override
     public int getChildCount(Object parent) {
         CfgJobInfo jobInfo = (CfgJobInfo) parent;
+        if (jobInfo.isStandardJob()) {
+            return 0;
+        }
         return jobAdjacencyList.getOrDefault(jobInfo.getName(), Collections.emptyList()).size();
     }
 
     @Override
     public boolean isLeaf(Object node) {
         CfgJobInfo jobInfo = (CfgJobInfo) node;
+        if (jobInfo.isStandardJob()) {
+            return true;
+        }
         return jobAdjacencyList.getOrDefault(jobInfo.getName(), Collections.emptyList()).size() == 0;
     }
 

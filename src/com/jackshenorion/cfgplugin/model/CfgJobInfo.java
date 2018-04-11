@@ -13,9 +13,15 @@ public class CfgJobInfo implements Comparable<CfgJobInfo> {
     private String name;
     private boolean isStandardJob = false;
     private boolean isRoot = false;
+    private boolean undefined = false;
 
     private CfgSegment cfgSegment;
     private List<CfgProperty> cfgPropertyList = new ArrayList<>();
+
+    public CfgJobInfo(String name, boolean isStandardJob, boolean isRoot, boolean undefined) {
+        this(name, isStandardJob, isRoot);
+        this.undefined = undefined;
+    }
 
     public CfgJobInfo(String name, boolean standardJob) {
         this(name, standardJob, false);
@@ -33,6 +39,10 @@ public class CfgJobInfo implements Comparable<CfgJobInfo> {
 
     public boolean isStandardJob() {
         return isStandardJob;
+    }
+
+    public boolean isUndefined() {
+        return undefined;
     }
 
     public CfgSegment getCfgSegment() {

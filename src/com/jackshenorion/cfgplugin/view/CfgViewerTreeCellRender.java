@@ -20,6 +20,8 @@ public class CfgViewerTreeCellRender extends ColoredTreeCellRenderer {
 
         if (jobInfo.isStandardJob()) {
             setIcon(CfgIcons.STANDARD_TASK);
+        } else if (jobInfo.isUndefined()) {
+            setIcon(CfgIcons.UNDEFINED_TASK);
         } else {
             setIcon(leaf ? CfgIcons.TASK : CfgIcons.TASK_GROUP);
         }
