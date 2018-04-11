@@ -26,8 +26,12 @@ import com.intellij.psi.PsiFile;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.messages.MessageBusConnection;
+import com.jackshenorion.cfgplugin.controller.EditorListener;
 import com.jackshenorion.cfgplugin.view.CfgViewerPanel;
 import org.jetbrains.annotations.NotNull;
+
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 
 public class CfgPluginController implements ProjectComponent {
@@ -46,6 +50,7 @@ public class CfgPluginController implements ProjectComponent {
     public MyVirtualFileAdapter myVirtualFileAdapter = new MyVirtualFileAdapter();
     public MyFileEditorManagerAdapter myFileEditorManagerAdapter = new MyFileEditorManagerAdapter();
     public static final Key<GrammarEditorMouseAdapter> EDITOR_MOUSE_LISTENER_KEY = Key.create("EDITOR_MOUSE_LISTENER_KEY");
+    private EditorListener _editorListener;
 
     public CfgPluginController(Project project) {
         this.project = project;
@@ -96,12 +101,21 @@ public class CfgPluginController implements ProjectComponent {
         LOG.info("createToolWindows " + project.getName());
         ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
         previewPanel = new CfgViewerPanel(this);
+
+        previewPanel.addPropertyChangeListener("ancestor", new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                handleCurrentState();
+            }
+        });
+
+
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(previewPanel, "", false);
 
         previewWindow = toolWindowManager.registerToolWindow(PREVIEW_WINDOW_ID, false, ToolWindowAnchor.RIGHT);
         previewWindow.getContentManager().addContent(content);
         previewWindow.setIcon(CfgIcons.FILE);
+        _editorListener = new EditorListener(previewPanel, project);
     }
 
     @Override
@@ -112,7 +126,25 @@ public class CfgPluginController implements ProjectComponent {
         previewPanel = null;
         previewWindow = null;
         project = null;
+        if (_editorListener != null) {
+            _editorListener.stop();
+            _editorListener = null;
+        }
+
     }
+
+    private void handleCurrentState() {
+        if (previewPanel == null)
+            return;
+
+        if (previewPanel.isDisplayable()) {
+            _editorListener.start();
+            previewPanel.selectElementAtCaret();
+        } else {
+            _editorListener.stop();
+        }
+    }
+
 
     public void installListeners() {
         LOG.info("installListeners " + project.getName());
