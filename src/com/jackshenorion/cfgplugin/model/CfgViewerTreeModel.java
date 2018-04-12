@@ -21,9 +21,11 @@ public class CfgViewerTreeModel implements TreeModel {
     private List<CfgFile> projectCfgFiles;
     private List<CfgFile> baseCfgFiles;
     private Map<String, List<String>> jobAdjacencyList;
+    private Map<String, List<String>> parentAdjacencyList;
     private Map<String, CfgViewerTreeNode> baseJobs;
     private Map<String, CfgViewerTreeNode> projectJobs;
     private CfgViewerTreeNode rootJobNode;
+    private List<String> errorJobs;
 
     public CfgViewerTreeModel(CfgPluginController cfgPluginController) {
         this.cfgPluginController = cfgPluginController;
@@ -34,6 +36,7 @@ public class CfgViewerTreeModel implements TreeModel {
         this.projectCfgFiles = new ArrayList<>();
         this.baseCfgFiles = new ArrayList<>();
         this.jobAdjacencyList = new HashMap<>();
+        this.parentAdjacencyList = new HashMap<>();
         this.baseJobs = new HashMap<>();
         this.projectJobs = new HashMap<>();
         this.rootJobNode = new CfgViewerTreeNode(JOB_ROOT, false, true);
@@ -56,6 +59,12 @@ public class CfgViewerTreeModel implements TreeModel {
             for (PsiElement element : elements) {
                 if (element instanceof CfgSegment) {
                     CfgSegment segment = (CfgSegment) element;
+                    if (baseJobs.containsKey(segment.getName())) {
+                        baseJobs.get(segment.getName()).setDuplicate(true);
+                        errorJobs.add(segment.getName());
+                        currentJobInfo = null;
+                        continue;
+                    }
                     currentJobInfo = new CfgViewerTreeNode(segment.getName(), true);
                     baseJobs.put(segment.getName(), currentJobInfo);
                     currentJobInfo.setCfgSegment(segment);
@@ -77,6 +86,11 @@ public class CfgViewerTreeModel implements TreeModel {
             for (PsiElement element : elements) {
                 if (element instanceof CfgSegment) {
                     CfgSegment segment = (CfgSegment) element;
+                    if (projectJobs.containsKey(segment.getName())) {
+                        projectJobs.get(segment.getName()).setDuplicate(true);
+                        currentJobInfo = null;
+                        continue;
+                    }
                     currentJobInfo = new CfgViewerTreeNode(segment.getName(), false);
                     projectJobs.put(segment.getName(), currentJobInfo);
                     currentJobInfo.setCfgSegment(segment);
@@ -88,6 +102,8 @@ public class CfgViewerTreeModel implements TreeModel {
                     }
                     if (currentJobInfo != null && CfgUtil.isJobKey(property.getKey())) {
                         jobAdjacencyList.get(currentJobInfo.getName()).add(property.getValue());
+                        parentAdjacencyList.putIfAbsent(property.getValue(), new ArrayList<>());
+                        parentAdjacencyList.get(property.getValue()).add(currentJobInfo.getName());
                     }
                 }
             }
@@ -105,6 +121,11 @@ public class CfgViewerTreeModel implements TreeModel {
                 }
             }
         }
+    }
+
+    private void markErrorNode() {
+        int[] color = new int[jobAdjacencyList.size()];
+
     }
 
     private List<String> getRootJobs() {

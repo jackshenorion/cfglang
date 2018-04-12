@@ -13,6 +13,7 @@ public class CfgViewerTreeNode implements Comparable<CfgViewerTreeNode> {
     private boolean isBaseJob = false;
     private boolean isRoot = false;
     private boolean undefined = false;
+    private boolean isDuplicate = false;
 
     private CfgSegment cfgSegment;
     private List<CfgProperty> cfgPropertyList = new ArrayList<>();
@@ -46,6 +47,15 @@ public class CfgViewerTreeNode implements Comparable<CfgViewerTreeNode> {
 
     public CfgSegment getCfgSegment() {
         return cfgSegment;
+    }
+
+    public boolean isDuplicate() {
+        return isDuplicate;
+    }
+
+    public CfgViewerTreeNode setDuplicate(boolean duplicate) {
+        isDuplicate = duplicate;
+        return this;
     }
 
     public List<CfgProperty> getCfgPropertyList() {

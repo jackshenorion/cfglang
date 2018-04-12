@@ -75,7 +75,7 @@ public class EditorListener implements CaretListener, FileEditorManagerListener 
         if (elementChangedByPsi == null) {
             return false;
         }
-        VirtualFile changedVirtualFile = elementChangedByPsi.getContainingFile().getOriginalFile().getVirtualFile();
+        VirtualFile changedVirtualFile = CfgUtil.getVirtualFile(elementChangedByPsi);
         if (changedVirtualFile == null || !CfgUtil.isCfgVirtualFile(changedVirtualFile)) {
             return false;
         }

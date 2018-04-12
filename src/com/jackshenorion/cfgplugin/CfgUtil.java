@@ -52,11 +52,11 @@ public class CfgUtil {
     }
 
     public static List<CfgSegment> findSegments(Project project, String segmentName, PsiElement element) {
-        return findSegments(project, segmentName, element.getContainingFile().getOriginalFile().getVirtualFile());
+        return findSegments(project, segmentName, getVirtualFile(element));
     }
 
     public static List<CfgSegment> findSegments(Project project, PsiElement element) {
-        return findSegments(project, element.getContainingFile().getOriginalFile().getVirtualFile());
+        return findSegments(project, getVirtualFile(element));
     }
 
     private static List<CfgSegment> findSegments(Project project, String segmentName, VirtualFile currentFile) {
@@ -64,7 +64,7 @@ public class CfgUtil {
             return Collections.emptyList();
         }
         final List<CfgSegment> result = new ArrayList<>();
-        findCfgFilesInSameScope(project, currentFile).forEach(cfgFile -> {
+        for (CfgFile cfgFile : findCfgFilesInSameScope(project, currentFile)) {
             CfgSegment[] segments = PsiTreeUtil.getChildrenOfType(cfgFile, CfgSegment.class);
             if (segments != null) {
                 for (CfgSegment segment : segments) {
@@ -73,18 +73,18 @@ public class CfgUtil {
                     }
                 }
             }
-        });
+        }
         return result;
     }
 
     public static List<CfgSegment> findSegments(Project project, VirtualFile currentFile) {
         List<CfgSegment> result = new ArrayList<CfgSegment>();
-        findCfgFilesInSameScope(project, currentFile).forEach(cfgFile -> {
+        for (CfgFile cfgFile : findCfgFilesInSameScope(project, currentFile)) {
             CfgSegment[] segments = PsiTreeUtil.getChildrenOfType(cfgFile, CfgSegment.class);
             if (segments != null) {
                 Collections.addAll(result, segments);
             }
-        });
+        }
         return result;
     }
 
@@ -163,40 +163,32 @@ public class CfgUtil {
     }
 
     @Nullable
-    private static VirtualFile getVirtualFile(Project project, PsiElement psiElement)
-    {
-        if (psiElement == null || !psiElement.isValid() || psiElement.getContainingFile().getOriginalFile() == null)
-        {
+    public static VirtualFile getVirtualFile(PsiElement psiElement) {
+        if (psiElement == null || !psiElement.isValid()
+                || psiElement.getContainingFile() == null
+                || psiElement.getContainingFile().getOriginalFile() == null) {
+            System.out.println("getVirtualFile: null: " + psiElement);
             return null;
         }
         return psiElement.getContainingFile().getOriginalFile().getVirtualFile();
     }
 
     @Nullable
-    public static PsiFile getContainingFile(PsiElement psiElement)
-    {
-        if (psiElement == null || !psiElement.isValid())
-        {
+    public static PsiFile getContainingFile(PsiElement psiElement) {
+        if (psiElement == null || !psiElement.isValid()) {
             return null;
         }
-
         return psiElement.getContainingFile().getOriginalFile();
     }
 
-    public static boolean isElementInSelectedFile(Project project, PsiElement psiElement)
-    {
-        VirtualFile elementFile = getVirtualFile(project, psiElement);
-        if (elementFile == null)
-        {
+    public static boolean isElementInSelectedFile(Project project, PsiElement psiElement) {
+        VirtualFile elementFile = getVirtualFile(psiElement);
+        if (elementFile == null) {
             return false;
         }
-
         VirtualFile[] currentEditedFiles = FileEditorManager.getInstance(project).getSelectedFiles();
-
-        for (VirtualFile file : currentEditedFiles)
-        {
-            if (elementFile.equals(file))
-            {
+        for (VirtualFile file : currentEditedFiles) {
+            if (elementFile.equals(file)) {
                 return true;
             }
         }
@@ -204,25 +196,16 @@ public class CfgUtil {
     }
 
     @Nullable
-    public static Editor getEditorIfSelected(Project project, PsiElement psiElement)
-    {
-        VirtualFile elementFile = getVirtualFile(project, psiElement);
-        if (elementFile == null)
-        {
+    public static Editor getEditorIfSelected(Project project, PsiElement psiElement) {
+        VirtualFile elementFile = getVirtualFile(psiElement);
+        if (elementFile == null) {
             return null;
         }
-
         FileEditor fileEditor = FileEditorManager.getInstance(project).getSelectedEditor(elementFile);
-
         Editor editor = null;
-
-        if (fileEditor != null && fileEditor instanceof TextEditor)
-        {
+        if (fileEditor != null && fileEditor instanceof TextEditor) {
             editor = ((TextEditor) fileEditor).getEditor();
         }
-
         return editor;
     }
-
-
 }
