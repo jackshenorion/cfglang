@@ -10,7 +10,7 @@ import javax.swing.*;
 public class CfgFileType extends LanguageFileType {
     public static final CfgFileType INSTANCE = new CfgFileType();
     public static final String PREFIX_SMARTSCONTROL = "SmartsControl";
-    public static final String PREFIX_STANDARDCONTROL = "StandardControl";
+    public static final String PREFIX_STANDARDCONTROL = "Standard";
 
     private CfgFileType() {
         super(CfgLanguage.INSTANCE);

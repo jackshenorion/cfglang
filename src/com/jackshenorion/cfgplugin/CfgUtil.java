@@ -18,7 +18,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class CfgUtil {
-    public static final String PROPERTY_KEY_JOBCLASS = "jobClass";
+    public static final String PROPERTY_KEY_JOB_CLASS = "jobClass";
+    public static final String PROPERTY_KEY_JOB = "job";
+    public static final String PROPERTY_KEY_WAIT_JOB = "waitJob";
 
     public static List<CfgSegment> findSegments(Project project, String segmentName) {
         if (segmentName == null) {
@@ -99,7 +101,7 @@ public class CfgUtil {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public static List<CfgFile> findNormalCfgFiles(Project project, VirtualFile virtualFile) {
+    public static List<CfgFile> findProjectCfgFiles(Project project, VirtualFile virtualFile) {
         if (!isCfgVirtualFile(virtualFile)) {
             return Collections.emptyList();
         }
@@ -137,11 +139,11 @@ public class CfgUtil {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    private static boolean isSamePackage(VirtualFile fileToMatch, VirtualFile fileToCheck) {
+    public static boolean isSamePackage(VirtualFile fileToMatch, VirtualFile fileToCheck) {
         return fileToMatch.getParent().getCanonicalPath().equals(fileToCheck.getParent().getCanonicalPath());
     }
 
-    private static boolean isStandardCfgFile(VirtualFile fileToCheck) {
+    public static boolean isStandardCfgFile(VirtualFile fileToCheck) {
         return isStandardCfgFile(fileToCheck.getName());
     }
 
@@ -157,7 +159,7 @@ public class CfgUtil {
     }
 
     public static boolean needJob(String key) {
-        return key.equals("job") || key.equals("waitJob");
+        return key.equals(PROPERTY_KEY_JOB) || key.equals(PROPERTY_KEY_WAIT_JOB);
     }
 
     @Nullable

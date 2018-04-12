@@ -12,7 +12,7 @@ import com.intellij.ui.components.JBScrollPane;
 import com.jackshenorion.cfgplugin.CfgLanguage;
 import com.jackshenorion.cfgplugin.controller.CfgPluginController;
 import com.jackshenorion.cfgplugin.CfgUtil;
-import com.jackshenorion.cfgplugin.model.CfgJobInfo;
+import com.jackshenorion.cfgplugin.model.CfgViewerTreeNode;
 import com.jackshenorion.cfgplugin.model.CfgViewerTreeModel;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,6 +23,7 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.Enumeration;
 
 public class CfgViewerPanel extends JPanel {
 
@@ -32,6 +33,7 @@ public class CfgViewerPanel extends JPanel {
     private CfgViewerTreeModel model;
     private final EditorCaretMover caretMover;
     private final ViewerTreeSelectionListener treeSelectionListener;
+    private VirtualFile currentVirtualFile;
 
     public CfgViewerPanel(CfgPluginController cfgPluginController) {
         this.cfgPluginController = cfgPluginController;
@@ -65,20 +67,48 @@ public class CfgViewerPanel extends JPanel {
         setBackground(Color.WHITE);
     }
 
-    public void resetTree(VirtualFile virtualFile) {
+    public void setCurrentFile(VirtualFile virtualFile) {
+        if (!CfgUtil.isCfgVirtualFile(virtualFile)) {
+            return;
+        }
+        currentVirtualFile = virtualFile;
+        resetTree();
+    }
+
+    public VirtualFile getCurrentVirtualFile() {
+        return currentVirtualFile;
+    }
+
+    private void resetTree() {
         tree.getSelectionModel().removeTreeSelectionListener(treeSelectionListener);
-        this.model = new CfgViewerTreeModel(this.cfgPluginController);
-        this.model.setCfgFiles(CfgUtil.findNormalCfgFiles(project, virtualFile), CfgUtil.findStandardCfgFiles(project));
-        this.tree.setModel(this.model);
+
+        Enumeration expandedDescendants = null;
+        TreePath path = null;
+        if (model.getRoot() != null) {
+            expandedDescendants = tree.getExpandedDescendants(new TreePath(model.getRoot()));
+            path = tree.getSelectionModel().getSelectionPath();
+        }
+
+        model = new CfgViewerTreeModel(this.cfgPluginController);
+        model.setCfgFiles(CfgUtil.findProjectCfgFiles(project, currentVirtualFile), CfgUtil.findStandardCfgFiles(project));
+        tree.setModel(model);
+        if (expandedDescendants != null)
+            while (expandedDescendants.hasMoreElements()) {
+                TreePath treePath = (TreePath) expandedDescendants.nextElement();
+                tree.expandPath(treePath);
+            }
+        tree.setSelectionPath(path);
+        tree.scrollPathToVisible(path);
+
         tree.getSelectionModel().addTreeSelectionListener(treeSelectionListener);
     }
 
     private static final String CARET_MOVED = "caret moved";
     private static final String TREE_SELECTION_CHANGED = "tree selection changed";
     private boolean inSetSelectedElement = false;
-    private CfgJobInfo selectedJobNode;
+    private CfgViewerTreeNode selectedJobNode;
 
-    private CfgJobInfo getSelectedNode() {
+    private CfgViewerTreeNode getSelectedNode() {
         return selectedJobNode;
     }
 
@@ -91,21 +121,18 @@ public class CfgViewerPanel extends JPanel {
     private class ViewerTreeSelectionListener implements TreeSelectionListener {
         @Override
         public void valueChanged(TreeSelectionEvent e) {
-            setSelectedNode((CfgJobInfo) tree.getLastSelectedPathComponent(),
+            setSelectedNode((CfgViewerTreeNode) tree.getLastSelectedPathComponent(),
                     CfgViewerPanel.TREE_SELECTION_CHANGED);
         }
     }
 
-    private void setSelectedNode(CfgJobInfo jobNode, String reason) {
+    private void setSelectedNode(CfgViewerTreeNode jobNode, String reason) {
         if (inSetSelectedElement) {
             return;
         }
         try {
             inSetSelectedElement = true;
             selectedJobNode = jobNode;
-            updatePropertySheet();
-            if (reason != TREE_SELECTION_CHANGED)
-                ;//changeTreeSelection();
             if (reason != CARET_MOVED && jobNode != null)
                 moveEditorCaret();
         } finally {
@@ -119,7 +146,6 @@ public class CfgViewerPanel extends JPanel {
         }
         try {
             inSetSelectedElement = true;
-            updatePropertySheet();
             changeTreeSelection(element);
         } finally {
             inSetSelectedElement = false;
@@ -139,18 +165,8 @@ public class CfgViewerPanel extends JPanel {
         }
     }
 
-    private void updatePropertySheet() {
-//        if (!_projectComponent.isShowProperties())
-//            return;
-//        _propertyPanel.setTarget(_selectedElement);
-//        _propertyPanel.getTable().getTableHeader().setReorderingAllowed(false);
-//
-//        _propertyHeaderRenderer.setIconForElement(_selectedElement);
-//        _propertyPanel.getTable().getColumnModel().getColumn(0).setHeaderRenderer(_propertyHeaderRenderer);
-//        _propertyPanel.getTable().getColumnModel().getColumn(1).setHeaderRenderer(_valueHeaderRenderer);
-//
-//        if (_selectedElement != null)
-//            _splitPane.setDividerLocation(_projectComponent.getSplitDividerLocation());
+    public void refreshRootElement() {
+        selectElementAtCaret();
     }
 
     public void selectElementAtCaret() {
@@ -177,8 +193,7 @@ public class CfgViewerPanel extends JPanel {
         }
 
         if (elementAtCaret != null && elementAtCaret != getSelectedElement()) {
-//            if (!PsiTreeUtil.isAncestor(getRootElement(), elementAtCaret, false))
-//                selectRootElement(psiFile, TITLE_PREFIX_CURRENT_FILE);
+            setCurrentFile(psiFile.getOriginalFile().getVirtualFile());
             setSelectedElement(elementAtCaret, changeSource == null ? CfgViewerPanel.CARET_MOVED : changeSource);
         }
     }

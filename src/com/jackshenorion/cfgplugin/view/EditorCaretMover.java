@@ -12,7 +12,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.jackshenorion.cfgplugin.CfgUtil;
-import com.jackshenorion.cfgplugin.model.CfgJobInfo;
+import com.jackshenorion.cfgplugin.model.CfgViewerTreeNode;
 import com.jackshenorion.cfgplugin.psi.CfgSegment;
 
 class EditorCaretMover {
@@ -27,7 +27,7 @@ class EditorCaretMover {
         _shouldMoveCaret = false;
     }
 
-    public void moveEditorCaret(CfgJobInfo node) {
+    public void moveEditorCaret(CfgViewerTreeNode node) {
         if (node == null || node.getCfgSegment() == null) return;
 
         CfgSegment segment = node.getCfgSegment();
