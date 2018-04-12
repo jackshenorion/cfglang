@@ -49,14 +49,14 @@ public class CfgViewerTreeModel implements TreeModel {
         Collections.sort(this.projectCfgFiles, cfgFileComparator);
         Collections.sort(this.baseCfgFiles, cfgFileComparator);
         readJobs();
-        addUndefinedJobs();
+        markErrorPath();
     }
 
     private void readJobs() {
         readJobs(projectCfgFiles, false); // project jobs has higher priority, so we read them first
         readJobs(baseCfgFiles, true);
-        adjacencyList.put(JOB_ROOT, getRootJobs());
-        jobNameToTreeNode.put(JOB_ROOT, rootJobNode);
+        addUndefinedJobs();
+        addRoot();
     }
 
     private void readJobs(List<CfgFile> cfgFiles, boolean isBaseCfgFile) {
@@ -114,25 +114,52 @@ public class CfgViewerTreeModel implements TreeModel {
         }
     }
 
-    private List<String> getRootJobs() {
-        List<String> rootJobList = new ArrayList<>();
+    private void addRoot() {
+        adjacencyList.putIfAbsent(JOB_ROOT, new ArrayList<>());
         for (String sourceJobName : adjacencyList.keySet()) {
+            if (sourceJobName.equals(JOB_ROOT)) {
+                continue;
+            }
             if (reverseAdjacencyList.get(sourceJobName) == null) { // this node point to no parent
-                rootJobList.add(sourceJobName);
+                adjacencyList.get(JOB_ROOT).add(sourceJobName);
+                reverseAdjacencyList.putIfAbsent(sourceJobName, new ArrayList<>());
+                reverseAdjacencyList.get(sourceJobName).add(JOB_ROOT);
             }
         }
-        return rootJobList;
+        jobNameToTreeNode.put(JOB_ROOT, rootJobNode);
+
     }
 
-//    private void markErrorPath() {
-//        int[] color = new int[jobAdjacencyList.size()];
-//        for (int i = 0; i < color.length; i++) {
-//            String startJobName =
-//                    projectJobs.getOrDefault();
-//
-//
-//        }
-//    }
+    private void markErrorPath() {
+        Map<String, Integer> color = new HashMap<>();
+        for (String jobName : jobNameToTreeNode.keySet()) {
+            color.putIfAbsent(jobName, 0); // unchecked
+            if (color.get(jobName) == 1) { // checked and marked as error
+                return;
+            }
+            CfgViewerTreeNode treeNode = jobNameToTreeNode.get(jobName);
+            if (treeNode.isDuplicate() || treeNode.isUndefined() || treeNode.isOnErrorPath()) {
+                color.put(jobName, 1);
+                treeNode.setOnErrorPath(true);
+                for (String parentJob : reverseAdjacencyList.getOrDefault(treeNode.getName(), Collections.emptyList())) {
+                    markErrorPath(color, parentJob);
+                }
+            }
+        }
+    }
+
+    private void markErrorPath(Map<String, Integer> color, String jobName) {
+        color.putIfAbsent(jobName, 0); // unchecked
+        if (color.get(jobName) == 1) { // checked and marked as error
+            return;
+        }
+        color.put(jobName, 1);
+        CfgViewerTreeNode treeNode = jobNameToTreeNode.get(jobName);
+        treeNode.setOnErrorPath(true);
+        for (String parentJob : reverseAdjacencyList.getOrDefault(treeNode.getName(), Collections.emptyList())) {
+            markErrorPath(color, parentJob);
+        }
+    }
 
     @Override
     public Object getRoot() {
@@ -193,10 +220,11 @@ public class CfgViewerTreeModel implements TreeModel {
 
     @Nullable
     public CfgViewerTreeNode getParent(CfgViewerTreeNode node) {
-        if (adjacencyList.get(node.getName()).size() == 0) {
+        if (reverseAdjacencyList.get(node.getName())== null
+                || reverseAdjacencyList.get(node.getName()).size() == 0) {
             return null;
         }
-        return jobNameToTreeNode.get(adjacencyList.get(node.getName()).get(0));
+        return jobNameToTreeNode.get(reverseAdjacencyList.get(node.getName()).get(0));
     }
 
     public TreePath getPath(PsiElement element) {

@@ -14,6 +14,7 @@ public class CfgViewerTreeNode implements Comparable<CfgViewerTreeNode> {
     private boolean isRoot = false;
     private boolean undefined = false;
     private boolean isDuplicate = false;
+    private boolean isOnErrorPath = false;
 
     private CfgSegment cfgSegment;
     private List<CfgProperty> cfgPropertyList = new ArrayList<>();
@@ -56,6 +57,14 @@ public class CfgViewerTreeNode implements Comparable<CfgViewerTreeNode> {
     public CfgViewerTreeNode setDuplicate(boolean duplicate) {
         isDuplicate = duplicate;
         return this;
+    }
+
+    public boolean isOnErrorPath() {
+        return isOnErrorPath;
+    }
+
+    public void setOnErrorPath(boolean onErrorPath) {
+        isOnErrorPath = onErrorPath;
     }
 
     public List<CfgProperty> getCfgPropertyList() {

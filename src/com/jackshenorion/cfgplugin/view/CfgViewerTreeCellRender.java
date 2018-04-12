@@ -27,7 +27,7 @@ public class CfgViewerTreeCellRender extends ColoredTreeCellRenderer {
         } else {
             setIcon(leaf ? CfgIcons.TASK : CfgIcons.TASK_GROUP);
         }
-        if (jobInfo.isDuplicate() || jobInfo.isUndefined()) {
+        if (jobInfo.isOnErrorPath()) {
             append(jobInfo.getName(), MY_ERROR_NAME);
         } else {
             append(jobInfo.getName());
