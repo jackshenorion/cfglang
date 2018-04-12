@@ -158,7 +158,7 @@ public class CfgUtil {
         return fileName.startsWith(CfgFileType.PREFIX_STANDARDCONTROL);
     }
 
-    public static boolean needJob(String key) {
+    public static boolean isJobKey(String key) {
         return key.equals(PROPERTY_KEY_JOB) || key.equals(PROPERTY_KEY_WAIT_JOB);
     }
 

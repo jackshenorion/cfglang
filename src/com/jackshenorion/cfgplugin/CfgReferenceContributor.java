@@ -23,7 +23,7 @@ public class CfgReferenceContributor extends PsiReferenceContributor {
                         String key = property.getKey();
                         String value = property.getValue() instanceof String ?
                                 (String) property.getValue() : null;
-                        if (key != null && CfgUtil.needJob(key) && value != null) {
+                        if (key != null && CfgUtil.isJobKey(key) && value != null) {
                             return new PsiReference[]{
                                     new CfgReference(element, new TextRange(key.length() + 1, value.length() + key.length() + 1))};
                         }

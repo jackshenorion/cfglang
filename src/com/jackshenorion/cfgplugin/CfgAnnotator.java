@@ -1,10 +1,8 @@
 package com.jackshenorion.cfgplugin;
 
 import com.intellij.lang.annotation.*;
-import com.intellij.openapi.editor.DefaultLanguageHighlighterColors;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.jackshenorion.cfgplugin.psi.CfgSegment;
 import com.jackshenorion.cfgplugin.psi.impl.CfgPropertyImpl;
@@ -20,21 +18,21 @@ public class CfgAnnotator implements Annotator {
             CfgPropertyImpl property = (CfgPropertyImpl) element;
             String key = property.getKey();
             String value = property.getValue();
-            if (key != null && key.equals("job")) {
+            if (key != null && CfgUtil.isJobKey(key)) {
                 Project project = element.getProject();
                 List<CfgSegment> segments = CfgUtil.findSegments(project, value, element);
                 if (segments.size() == 1) {
-                    TextRange range = new TextRange(element.getTextRange().getStartOffset() + 3,
-                            element.getTextRange().getStartOffset() + 3);
+                    TextRange range = new TextRange(element.getTextRange().getStartOffset() + key.length(),
+                            element.getTextRange().getEndOffset());
                     holder.createInfoAnnotation(range, null);
                 } else if (segments.size() == 0) {
                     if (value != null && value.length() > 0) {
-                        TextRange range = new TextRange(element.getTextRange().getStartOffset() + 4,
+                        TextRange range = new TextRange(element.getTextRange().getStartOffset() + key.length() + 1,
                                 element.getTextRange().getEndOffset());
                         holder.createErrorAnnotation(range, "Undefined job");
                     }
                 } else {
-                    TextRange range = new TextRange(element.getTextRange().getStartOffset() + 4,
+                    TextRange range = new TextRange(element.getTextRange().getStartOffset() + key.length() + 1,
                             element.getTextRange().getEndOffset());
                     holder.createErrorAnnotation(range, "Duplicated job definition");
                 }

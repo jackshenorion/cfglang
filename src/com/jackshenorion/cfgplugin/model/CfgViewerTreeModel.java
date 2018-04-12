@@ -86,7 +86,7 @@ public class CfgViewerTreeModel implements TreeModel {
                     if (currentJobInfo != null) {
                         currentJobInfo.addCfgProperty(property);
                     }
-                    if (currentJobInfo != null && CfgUtil.needJob(property.getKey())) {
+                    if (currentJobInfo != null && CfgUtil.isJobKey(property.getKey())) {
                         jobAdjacencyList.get(currentJobInfo.getName()).add(property.getValue());
                     }
                 }
