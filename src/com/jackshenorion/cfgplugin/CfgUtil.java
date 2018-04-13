@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 public class CfgUtil {
     public static final String PROPERTY_KEY_JOB_CLASS = "jobClass";
     public static final String PROPERTY_KEY_JOB = "job";
+    public static final String PROPERTY_KEY_EXTEND_JOB = "extendJob";
     public static final String PROPERTY_KEY_WAIT_JOB = "waitJob";
 
     public static List<CfgSegment> findSegments(Project project, String segmentName) {
@@ -162,6 +163,10 @@ public class CfgUtil {
 
     public static boolean isJobKey(String key) {
         return key.equals(PROPERTY_KEY_JOB) || key.equals(PROPERTY_KEY_WAIT_JOB);
+    }
+
+    public static boolean isExtendJobKey(String key) {
+        return key.equals(PROPERTY_KEY_EXTEND_JOB);
     }
 
     @Nullable

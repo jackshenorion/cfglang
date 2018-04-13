@@ -16,6 +16,9 @@ public class CfgViewerTreeNode implements Comparable<CfgViewerTreeNode> {
     private boolean isDuplicate = false;
     private boolean isOnErrorPath = false;
     private boolean isJobClassUndefined = false;
+    private boolean isExtendingOtherJob = false;
+    private String extendedJob = null;
+    private boolean isExtendedByOtherJob = false;
 
     private CfgSegment cfgSegment;
     private List<CfgProperty> cfgPropertyList = new ArrayList<>();
@@ -70,6 +73,33 @@ public class CfgViewerTreeNode implements Comparable<CfgViewerTreeNode> {
 
     public boolean isJobClassUndefined() {
         return isJobClassUndefined;
+    }
+
+    public boolean isExtendingOtherJob() {
+        return isExtendingOtherJob;
+    }
+
+    public CfgViewerTreeNode setExtendingOtherJob(boolean extendingOtherJob) {
+        isExtendingOtherJob = extendingOtherJob;
+        return this;
+    }
+
+    public String getExtendedJob() {
+        return extendedJob;
+    }
+
+    public CfgViewerTreeNode setExtendedJob(String extendedJob) {
+        this.extendedJob = extendedJob;
+        return this;
+    }
+
+    public boolean isExtendedByOtherJob() {
+        return isExtendedByOtherJob;
+    }
+
+    public CfgViewerTreeNode setExtendedByOtherJob(boolean extendedByOtherJob) {
+        isExtendedByOtherJob = extendedByOtherJob;
+        return this;
     }
 
     public CfgViewerTreeNode setJobClassUndefined(boolean jobClassUndefined) {

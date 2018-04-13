@@ -77,6 +77,7 @@ public class CfgViewerTreeModel implements TreeModel {
         readJobs(baseCfgFiles, true);
         addUndefinedJobs();
         addRoot();
+        markExtendJob();
     }
 
     private void readJobs(List<CfgFile> cfgFiles, boolean isBaseCfgFile) {
@@ -120,6 +121,13 @@ public class CfgViewerTreeModel implements TreeModel {
             adjacencyList.get(currentNode.getName()).add(targetJobName);
             reverseAdjacencyList.putIfAbsent(targetJobName, new ArrayList<>());
             reverseAdjacencyList.get(targetJobName).add(currentNode.getName());
+        } else if (CfgUtil.isExtendJobKey(property.getKey())) {
+            String targetJobName = property.getValue();
+            currentNode.setExtendingOtherJob(true);
+            currentNode.setExtendedJob(property.getValue());
+            adjacencyList.get(currentNode.getName()).add(targetJobName);
+            reverseAdjacencyList.putIfAbsent(targetJobName, new ArrayList<>());
+            reverseAdjacencyList.get(targetJobName).add(currentNode.getName());
         }
     }
 
@@ -151,6 +159,18 @@ public class CfgViewerTreeModel implements TreeModel {
         }
         jobNameToTreeNode.put(JOB_ROOT, rootJobNode);
 
+    }
+
+    private void markExtendJob() {
+        for (CfgViewerTreeNode node : jobNameToTreeNode.values()) {
+            if (node.isExtendingOtherJob()) {
+                CfgViewerTreeNode extendedJobNode = jobNameToTreeNode.get(node.getExtendedJob());
+                for (CfgProperty cfgProperty : extendedJobNode.getCfgPropertyList()) {
+                    node.addCfgProperty(cfgProperty);
+                }
+                extendedJobNode.setExtendedByOtherJob(true);
+            }
+        }
     }
 
     private void markUnknownJobClass() {
