@@ -40,9 +40,6 @@ public class CfgPluginController implements ProjectComponent {
     public ToolWindow previewWindow;
     public CfgViewerPanel previewPanel;
 
-    //    public MyVirtualFileAdapter myVirtualFileAdapter = new MyVirtualFileAdapter();
-//    public MyFileEditorManagerAdapter myFileEditorManagerAdapter = new MyFileEditorManagerAdapter();
-//    public static final Key<GrammarEditorMouseAdapter> EDITOR_MOUSE_LISTENER_KEY = Key.create("EDITOR_MOUSE_LISTENER_KEY");
     private EditorListener editorListener;
 
     public CfgPluginController(Project project) {
