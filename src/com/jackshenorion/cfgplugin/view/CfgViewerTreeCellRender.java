@@ -15,6 +15,7 @@ import static com.intellij.ui.SimpleTextAttributes.GRAY_ITALIC_ATTRIBUTES;
 public class CfgViewerTreeCellRender extends ColoredTreeCellRenderer {
 
     private final static SimpleTextAttributes MY_ERROR_NAME = new SimpleTextAttributes(SimpleTextAttributes.STYLE_WAVED, null, JBColor.red);
+    private final static SimpleTextAttributes MY_ERROR_JOB_CLASS = new SimpleTextAttributes(SimpleTextAttributes.STYLE_ITALIC, JBColor.red);
 
     @Override
     public void customizeCellRenderer(@NotNull JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
@@ -23,16 +24,16 @@ public class CfgViewerTreeCellRender extends ColoredTreeCellRenderer {
             append("null");
         }
         if (jobInfo.isBaseJob()) {
-            setIcon(CfgIcons.STANDARD_TASK);
+            setIcon(CfgIcons.BASE_JOB);
         } else {
-            setIcon(leaf ? CfgIcons.TASK : CfgIcons.TASK_GROUP);
+            setIcon(leaf ? CfgIcons.PROJECT_JOB : CfgIcons.TASK_GROUP);
         }
         if (jobInfo.isOnErrorPath()) {
             append(jobInfo.getName(), MY_ERROR_NAME);
         } else {
             append(jobInfo.getName());
         }
-        append(" " + jobInfo.getJobClass().getName(), GRAY_ITALIC_ATTRIBUTES);
+        append(" " + jobInfo.getJobClass(), jobInfo.isJobClassUndefined() ? MY_ERROR_JOB_CLASS : GRAY_ITALIC_ATTRIBUTES);
         if (jobInfo.isUndefined()) {
             append(" Undefined", ERROR_ATTRIBUTES);
         }

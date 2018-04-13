@@ -118,42 +118,14 @@ public class CfgPluginController implements ProjectComponent {
         createActionToolBar();
         editorListener = new EditorListener(previewPanel, project);
         //todo show name of current file and its package
-
     }
 
     private void createActionToolBar() {
-        // whether include base file
-        // whether auto-open file
-        // focus on selected item
         ActionManager actionManager = ActionManager.getInstance();
         DefaultActionGroup actionGroup = new DefaultActionGroup(ID_ACTION_GROUP, false);
         actionGroup.add(new FocusInEditorAction("Jump To Source", "Jump To Source", CfgIcons.LOCATE, this));
-//        actionGroup.add(new PropertyToggleAction("Filter Whitespace",
-//                "Remove whitespace elements",
-//                Helpers.getIcon(ICON_FILTER_WHITESPACE),
-//                this,
-//                "filterWhitespace"));
-//        actionGroup.add(new PropertyToggleAction("Highlight",
-//                "Highlight selected PSI element",
-//                Helpers.getIcon(ICON_TOGGLE_HIGHLIGHT),
-//                this,
-//                "highlighted"));
-//        actionGroup.add(new PropertyToggleAction("Properties",
-//                "Show PSI element properties",
-//                AllIcons.General.Settings,
-//                this,
-//                "showProperties"));
-//        actionGroup.add(new PropertyToggleAction("Autoscroll to Source",
-//                "Autoscroll to Source",
-//                AllIcons.General.AutoscrollToSource,
-//                this,
-//                "autoScrollToSource"));
-//        actionGroup.add(new PropertyToggleAction("Autoscroll from Source",
-//                "Autoscroll from Source111",
-//                AllIcons.General.AutoscrollFromSource,
-//                this,
-//                "autoScrollFromSource"));
-
+        actionGroup.add(new ViewerSwitchAction("Validate Job Classes", "Whether validate jobClass", CfgIcons.ERROR, this, CHECK_JOB_CLASSES_SWITCH_ID));
+        actionGroup.add(new ViewerSwitchAction("Display Base Jobs", "Whether display base jobs on root", CfgIcons.BASE_JOB, this, DISPLAY_BASE_JOBS_SWITCH_ID));
         ActionToolbar toolBar = actionManager.createActionToolbar(ID_ACTION_TOOLBAR, actionGroup, true);
         JPanel panel = new JPanel(new HorizontalLayout(0));
         panel.add(toolBar.getComponent());
@@ -162,6 +134,42 @@ public class CfgPluginController implements ProjectComponent {
 
     public void onFocusInEditorClicked() {
         previewPanel.onEditSource();
+    }
+
+    private static final String CHECK_JOB_CLASSES_SWITCH_ID = "Check Job Classes";
+    private static final String DISPLAY_BASE_JOBS_SWITCH_ID = "Display Base Jobs";
+    private boolean checkJobClasses = false;
+    private boolean displayBaseJobs = false;
+
+    public void onViewerSwitch(String switchName, boolean isSelected) {
+        switch (switchName) {
+            case CHECK_JOB_CLASSES_SWITCH_ID:
+                checkJobClasses = isSelected;
+                break;
+            case DISPLAY_BASE_JOBS_SWITCH_ID:
+                displayBaseJobs = isSelected;
+                break;
+        }
+        previewPanel.refreshRootElement();
+    }
+
+    public boolean getViewSwitch(String switchName) {
+        switch (switchName) {
+            case CHECK_JOB_CLASSES_SWITCH_ID:
+                return checkJobClasses;
+            case DISPLAY_BASE_JOBS_SWITCH_ID:
+                return displayBaseJobs;
+            default:
+                return false;
+        }
+    }
+
+    public boolean isCheckJobClasses() {
+        return checkJobClasses;
+    }
+
+    public boolean isDisplayBaseJobs() {
+        return displayBaseJobs;
     }
 
     private ToolWindow getToolWindow() {

@@ -1,8 +1,10 @@
 package com.jackshenorion.cfgplugin.model;
 
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.source.PsiFileImpl;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.jackshenorion.cfgplugin.PMUtil;
 import com.jackshenorion.cfgplugin.controller.CfgPluginController;
 import com.jackshenorion.cfgplugin.CfgUtil;
 import com.jackshenorion.cfgplugin.psi.CfgFile;
@@ -26,6 +28,7 @@ public class CfgViewerTreeModel implements TreeModel {
     private Map<String, List<String>> adjacencyList;
     private Map<String, List<String>> reverseAdjacencyList;
     private Map<String, CfgViewerTreeNode> jobNameToTreeNode;
+    private Set<String> jobClasses;
 
     public CfgViewerTreeModel(CfgPluginController cfgPluginController) {
         this.cfgPluginController = cfgPluginController;
@@ -38,6 +41,7 @@ public class CfgViewerTreeModel implements TreeModel {
         adjacencyList = new LinkedHashMap<>();
         reverseAdjacencyList = new HashMap<>();
         jobNameToTreeNode = new LinkedHashMap<>();
+        jobClasses = new HashSet<>();
         rootJobNode = new CfgViewerTreeNode(JOB_ROOT, false, true);
     }
 
@@ -48,8 +52,24 @@ public class CfgViewerTreeModel implements TreeModel {
         this.baseCfgFiles = baseCfgFiles;
         Collections.sort(this.projectCfgFiles, cfgFileComparator);
         Collections.sort(this.baseCfgFiles, cfgFileComparator);
+        readJobClasses();
         readJobs();
+        if (cfgPluginController.isCheckJobClasses()) {
+            markUnknownJobClass();
+        }
         markErrorPath();
+    }
+
+    private void readJobClasses() {
+        List<VirtualFile> pmFiles = PMUtil.findAllPmVirtualFiles(cfgPluginController.getProject());
+        for (VirtualFile pmFile : pmFiles) {
+            String fileName = pmFile.getName();
+            if (fileName.indexOf(".") >= 0) {
+                fileName = fileName.substring(0, fileName.indexOf("."));
+            }
+            jobClasses.add(fileName);
+        }
+        jobClasses.add("Root");
     }
 
     private void readJobs() {
@@ -121,6 +141,9 @@ public class CfgViewerTreeModel implements TreeModel {
                 continue;
             }
             if (reverseAdjacencyList.get(sourceJobName) == null) { // this node point to no parent
+                if (jobNameToTreeNode.get(sourceJobName).isBaseJob() && !cfgPluginController.isDisplayBaseJobs()) {
+                    continue;
+                }
                 adjacencyList.get(JOB_ROOT).add(sourceJobName);
                 reverseAdjacencyList.putIfAbsent(sourceJobName, new ArrayList<>());
                 reverseAdjacencyList.get(sourceJobName).add(JOB_ROOT);
@@ -128,6 +151,12 @@ public class CfgViewerTreeModel implements TreeModel {
         }
         jobNameToTreeNode.put(JOB_ROOT, rootJobNode);
 
+    }
+
+    private void markUnknownJobClass() {
+        for (CfgViewerTreeNode node : jobNameToTreeNode.values()) {
+            node.setJobClassUndefined(!jobClasses.contains(node.getJobClass()));
+        }
     }
 
     private void markErrorPath() {
@@ -138,7 +167,7 @@ public class CfgViewerTreeModel implements TreeModel {
                 return;
             }
             CfgViewerTreeNode treeNode = jobNameToTreeNode.get(jobName);
-            if (treeNode.isDuplicate() || treeNode.isUndefined() || treeNode.isOnErrorPath()) {
+            if (treeNode.isDuplicate() || treeNode.isUndefined() || treeNode.isJobClassUndefined() || treeNode.isOnErrorPath()) {
                 color.put(jobName, 1);
                 treeNode.setOnErrorPath(true);
                 for (String parentJob : reverseAdjacencyList.getOrDefault(treeNode.getName(), Collections.emptyList())) {
@@ -220,7 +249,7 @@ public class CfgViewerTreeModel implements TreeModel {
 
     @Nullable
     public CfgViewerTreeNode getParent(CfgViewerTreeNode node) {
-        if (reverseAdjacencyList.get(node.getName())== null
+        if (reverseAdjacencyList.get(node.getName()) == null
                 || reverseAdjacencyList.get(node.getName()).size() == 0) {
             return null;
         }

@@ -13,7 +13,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiTreeChangeAdapter;
 import com.intellij.psi.PsiTreeChangeEvent;
-import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.messages.MessageBusConnection;
 import com.jackshenorion.cfgplugin.CfgUtil;
 import com.jackshenorion.cfgplugin.view.CfgViewerPanel;
@@ -83,16 +82,13 @@ public class EditorListener implements CaretListener, FileEditorManagerListener 
     }
 
     public void fileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-        System.out.println("fileOpened: " + file);
     }
 
     public void fileClosed(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-        System.out.println("fileClosed: " + file);
     }
 
     @Override
     public void selectionChanged(@NotNull FileEditorManagerEvent event) {
-        System.out.println("selectionChanged: " + event);
         if (event.getNewFile() == null) {
             return;
         }
@@ -110,7 +106,6 @@ public class EditorListener implements CaretListener, FileEditorManagerListener 
 
     @Override
     public void caretPositionChanged(CaretEvent event) {
-        System.out.println("caretPositionChanged: " + event);
         _viewer.selectElementAtCaret();
     }
 

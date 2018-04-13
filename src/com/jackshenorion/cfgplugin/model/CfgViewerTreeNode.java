@@ -15,6 +15,7 @@ public class CfgViewerTreeNode implements Comparable<CfgViewerTreeNode> {
     private boolean undefined = false;
     private boolean isDuplicate = false;
     private boolean isOnErrorPath = false;
+    private boolean isJobClassUndefined = false;
 
     private CfgSegment cfgSegment;
     private List<CfgProperty> cfgPropertyList = new ArrayList<>();
@@ -67,6 +68,15 @@ public class CfgViewerTreeNode implements Comparable<CfgViewerTreeNode> {
         isOnErrorPath = onErrorPath;
     }
 
+    public boolean isJobClassUndefined() {
+        return isJobClassUndefined;
+    }
+
+    public CfgViewerTreeNode setJobClassUndefined(boolean jobClassUndefined) {
+        isJobClassUndefined = jobClassUndefined;
+        return this;
+    }
+
     public List<CfgProperty> getCfgPropertyList() {
         return new ArrayList<>(cfgPropertyList);
     }
@@ -81,17 +91,16 @@ public class CfgViewerTreeNode implements Comparable<CfgViewerTreeNode> {
         return this;
     }
 
-    public CfgJobClass getJobClass() {
+    public String getJobClass() {
         if (isRoot) {
-            return CfgJobClass.Root;
+            return "Root";
         }
-        CfgJobClass[] cfgJobClasses = {CfgJobClass.Unknown};
-        cfgPropertyList.forEach(cfgProperty -> {
+        for (CfgProperty cfgProperty : cfgPropertyList) {
             if (cfgProperty.getKey().equals(CfgUtil.PROPERTY_KEY_JOB_CLASS)) {
-                cfgJobClasses[0] = CfgJobClass.fromName(cfgProperty.getValue());
+                return cfgProperty.getValue();
             }
-        });
-        return cfgJobClasses[0];
+        }
+        return "Unknown";
     }
 
     @Override
