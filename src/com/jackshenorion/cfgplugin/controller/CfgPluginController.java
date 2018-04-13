@@ -133,7 +133,7 @@ public class CfgPluginController implements ProjectComponent {
     }
 
     public void onFocusInEditorClicked() {
-        previewPanel.onEditSource();
+        previewPanel.onFocusInEditSourceFromTreeSelection();
     }
 
     private static final String CHECK_JOB_CLASSES_SWITCH_ID = "Check Job Classes";

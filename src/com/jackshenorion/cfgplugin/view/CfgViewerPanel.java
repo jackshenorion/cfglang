@@ -51,7 +51,7 @@ public class CfgViewerPanel extends JPanel {
         ActionMap actionMap = tree.getActionMap();
         actionMap.put("EditSource", new AbstractAction("EditSource") {
             public void actionPerformed(ActionEvent e) {
-                onEditSource();
+                onFocusInEditSourceFromTreeSelection();
             }
         });
         InputMap inputMap = tree.getInputMap();
@@ -61,50 +61,16 @@ public class CfgViewerPanel extends JPanel {
         setBackground(Color.WHITE);
     }
 
-    public void onEditSource() {
-        if (getSelectedNode() == null || getSelectedNode().getCfgSegment() == null) return;
+    public void onFocusInEditSourceFromTreeSelection() {
+        if (getSelectedNode() == null || getSelectedNode().getCfgSegment() == null) {
+            return;
+        }
         Editor editor = caretMover.openInEditor(getSelectedNode().getCfgSegment());
         if (editor == null) {
             return;
         }
         selectElementAtCaret(editor, TREE_SELECTION_CHANGED);
         editor.getContentComponent().requestFocus();
-    }
-
-    public void setCurrentFile(VirtualFile virtualFile) {
-        if (!CfgUtil.isCfgVirtualFile(virtualFile)) {
-            return;
-        }
-        currentVirtualFile = virtualFile;
-        resetTree();
-    }
-
-    public VirtualFile getCurrentVirtualFile() {
-        return currentVirtualFile;
-    }
-
-    private void resetTree() {
-        tree.getSelectionModel().removeTreeSelectionListener(treeSelectionListener);
-
-        Enumeration expandedDescendants = null;
-        TreePath path = null;
-        if (model.getRoot() != null) {
-            expandedDescendants = tree.getExpandedDescendants(new TreePath(model.getRoot()));
-            path = tree.getSelectionModel().getSelectionPath();
-        }
-
-        model = new CfgViewerTreeModel(this.cfgPluginController);
-        model.setCfgFiles(CfgUtil.findProjectCfgFiles(project, currentVirtualFile), CfgUtil.findStandardCfgFiles(project));
-        tree.setModel(model);
-        if (expandedDescendants != null)
-            while (expandedDescendants.hasMoreElements()) {
-                TreePath treePath = (TreePath) expandedDescendants.nextElement();
-                tree.expandPath(treePath);
-            }
-        tree.setSelectionPath(path);
-        tree.scrollPathToVisible(path);
-
-        tree.getSelectionModel().addTreeSelectionListener(treeSelectionListener);
     }
 
     private static final String CARET_MOVED = "caret moved";
@@ -125,8 +91,7 @@ public class CfgViewerPanel extends JPanel {
     private class ViewerTreeSelectionListener implements TreeSelectionListener {
         @Override
         public void valueChanged(TreeSelectionEvent e) {
-            setSelectedNode((CfgViewerTreeNode) tree.getLastSelectedPathComponent(),
-                    CfgViewerPanel.TREE_SELECTION_CHANGED);
+            setSelectedNode((CfgViewerTreeNode) tree.getLastSelectedPathComponent(), CfgViewerPanel.TREE_SELECTION_CHANGED);
         }
     }
 
@@ -137,20 +102,23 @@ public class CfgViewerPanel extends JPanel {
         try {
             inSetSelectedElement = true;
             selectedJobNode = jobNode;
-            if (reason != CARET_MOVED && jobNode != null)
+            if (reason != CARET_MOVED && jobNode != null) {
                 moveEditorCaret();
+            }
         } finally {
             inSetSelectedElement = false;
         }
     }
 
-    private void setSelectedElement(PsiElement element, String reason) {
+    private void reflectSelectedElementOnTree(PsiElement element, String reason) {
         if (inSetSelectedElement) {
             return;
         }
         try {
             inSetSelectedElement = true;
-            changeTreeSelection(element);
+            if (!reason.equals(TREE_SELECTION_CHANGED)) {
+                changeTreeSelection(element);
+            }
         } finally {
             inSetSelectedElement = false;
         }
@@ -198,7 +166,42 @@ public class CfgViewerPanel extends JPanel {
 
         if (elementAtCaret != null && elementAtCaret != getSelectedElement()) {
             setCurrentFile(psiFile.getOriginalFile().getVirtualFile());
-            setSelectedElement(elementAtCaret, changeSource == null ? CfgViewerPanel.CARET_MOVED : changeSource);
+            reflectSelectedElementOnTree(elementAtCaret, changeSource == null ? CfgViewerPanel.CARET_MOVED : changeSource);
         }
+    }
+
+    public void setCurrentFile(VirtualFile virtualFile) {
+        if (!CfgUtil.isCfgVirtualFile(virtualFile)) {
+            return;
+        }
+        currentVirtualFile = virtualFile;
+        resetTree();
+    }
+
+    public VirtualFile getCurrentVirtualFile() {
+        return currentVirtualFile;
+    }
+
+    private void resetTree() {
+        tree.getSelectionModel().removeTreeSelectionListener(treeSelectionListener);
+
+        Enumeration expandedDescendants = null;
+        TreePath path = null;
+        if (model.getRoot() != null) {
+            expandedDescendants = tree.getExpandedDescendants(new TreePath(model.getRoot()));
+            path = tree.getSelectionModel().getSelectionPath();
+        }
+
+        model = new CfgViewerTreeModel(this.cfgPluginController);
+        model.setCfgFiles(CfgUtil.findProjectCfgFiles(project, currentVirtualFile), CfgUtil.findStandardCfgFiles(project));
+        tree.setModel(model);
+        if (expandedDescendants != null)
+            while (expandedDescendants.hasMoreElements()) {
+                TreePath treePath = (TreePath) expandedDescendants.nextElement();
+                tree.expandPath(treePath);
+            }
+        tree.setSelectionPath(path);
+        tree.scrollPathToVisible(path);
+        tree.getSelectionModel().addTreeSelectionListener(treeSelectionListener);
     }
 }
