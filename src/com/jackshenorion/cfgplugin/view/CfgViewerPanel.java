@@ -51,13 +51,7 @@ public class CfgViewerPanel extends JPanel {
         ActionMap actionMap = tree.getActionMap();
         actionMap.put("EditSource", new AbstractAction("EditSource") {
             public void actionPerformed(ActionEvent e) {
-                if (getSelectedNode() == null || getSelectedNode().getCfgSegment() == null) return;
-                Editor editor = caretMover.openInEditor(getSelectedNode().getCfgSegment());
-                if (editor == null) {
-                    return;
-                }
-                selectElementAtCaret(editor, TREE_SELECTION_CHANGED);
-                editor.getContentComponent().requestFocus();
+                onEditSource();
             }
         });
         InputMap inputMap = tree.getInputMap();
@@ -65,6 +59,16 @@ public class CfgViewerPanel extends JPanel {
 
         add(new JBScrollPane(tree), BorderLayout.CENTER);
         setBackground(Color.WHITE);
+    }
+
+    public void onEditSource() {
+        if (getSelectedNode() == null || getSelectedNode().getCfgSegment() == null) return;
+        Editor editor = caretMover.openInEditor(getSelectedNode().getCfgSegment());
+        if (editor == null) {
+            return;
+        }
+        selectElementAtCaret(editor, TREE_SELECTION_CHANGED);
+        editor.getContentComponent().requestFocus();
     }
 
     public void setCurrentFile(VirtualFile virtualFile) {

@@ -2,36 +2,29 @@ package com.jackshenorion.cfgplugin.controller;
 
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManager;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.EditorFactory;
-import com.intellij.openapi.editor.event.EditorFactoryAdapter;
-import com.intellij.openapi.editor.event.EditorFactoryEvent;
-import com.intellij.openapi.editor.event.EditorMouseAdapter;
-import com.intellij.openapi.editor.event.EditorMouseEvent;
 import com.intellij.openapi.extensions.PluginId;
-import com.intellij.openapi.fileEditor.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.*;
-import com.intellij.openapi.vfs.*;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
-import com.intellij.psi.PsiDocumentManager;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
+import com.intellij.ui.components.panels.HorizontalLayout;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import com.intellij.util.messages.MessageBusConnection;
 import com.jackshenorion.cfgplugin.CfgIcons;
-import com.jackshenorion.cfgplugin.CfgUtil;
 import com.jackshenorion.cfgplugin.view.CfgViewerPanel;
 import org.jetbrains.annotations.NotNull;
 
-import static com.jackshenorion.cfgplugin.CfgConstants.PLUGIN_NAME;
-import static com.jackshenorion.cfgplugin.CfgConstants.PROJECT_COMPONENT_NAME;
+import javax.swing.*;
+
+import java.awt.*;
+
+import static com.jackshenorion.cfgplugin.CfgConstants.*;
 
 
 public class CfgPluginController implements ProjectComponent {
@@ -47,7 +40,7 @@ public class CfgPluginController implements ProjectComponent {
     public ToolWindow previewWindow;
     public CfgViewerPanel previewPanel;
 
-//    public MyVirtualFileAdapter myVirtualFileAdapter = new MyVirtualFileAdapter();
+    //    public MyVirtualFileAdapter myVirtualFileAdapter = new MyVirtualFileAdapter();
 //    public MyFileEditorManagerAdapter myFileEditorManagerAdapter = new MyFileEditorManagerAdapter();
 //    public static final Key<GrammarEditorMouseAdapter> EDITOR_MOUSE_LISTENER_KEY = Key.create("EDITOR_MOUSE_LISTENER_KEY");
     private EditorListener editorListener;
@@ -93,13 +86,13 @@ public class CfgPluginController implements ProjectComponent {
         }
         LOG.info("Smarts Control Cfg Plugin version " + version + ", Java version " + SystemInfo.JAVA_VERSION);
         createToolWindows();
-//        installListeners();
+        installListeners();
     }
 
     @Override
     public void projectClosed() {
         LOG.info("projectClosed " + project.getName());
-//        uninstallListeners();
+        uninstallListeners();
         if (editorListener != null) {
             editorListener.stop();
             editorListener = null;
@@ -122,7 +115,53 @@ public class CfgPluginController implements ProjectComponent {
         previewWindow = getToolWindow();
         previewWindow.getContentManager().addContent(content);
         previewWindow.setIcon(CfgIcons.FILE);
+        createActionToolBar();
         editorListener = new EditorListener(previewPanel, project);
+        //todo show name of current file and its package
+
+    }
+
+    private void createActionToolBar() {
+        // whether include base file
+        // whether auto-open file
+        // focus on selected item
+        ActionManager actionManager = ActionManager.getInstance();
+        DefaultActionGroup actionGroup = new DefaultActionGroup(ID_ACTION_GROUP, false);
+        actionGroup.add(new FocusInEditorAction("Jump To Source", "Jump To Source", CfgIcons.LOCATE, this));
+//        actionGroup.add(new PropertyToggleAction("Filter Whitespace",
+//                "Remove whitespace elements",
+//                Helpers.getIcon(ICON_FILTER_WHITESPACE),
+//                this,
+//                "filterWhitespace"));
+//        actionGroup.add(new PropertyToggleAction("Highlight",
+//                "Highlight selected PSI element",
+//                Helpers.getIcon(ICON_TOGGLE_HIGHLIGHT),
+//                this,
+//                "highlighted"));
+//        actionGroup.add(new PropertyToggleAction("Properties",
+//                "Show PSI element properties",
+//                AllIcons.General.Settings,
+//                this,
+//                "showProperties"));
+//        actionGroup.add(new PropertyToggleAction("Autoscroll to Source",
+//                "Autoscroll to Source",
+//                AllIcons.General.AutoscrollToSource,
+//                this,
+//                "autoScrollToSource"));
+//        actionGroup.add(new PropertyToggleAction("Autoscroll from Source",
+//                "Autoscroll from Source111",
+//                AllIcons.General.AutoscrollFromSource,
+//                this,
+//                "autoScrollFromSource"));
+
+        ActionToolbar toolBar = actionManager.createActionToolbar(ID_ACTION_TOOLBAR, actionGroup, true);
+        JPanel panel = new JPanel(new HorizontalLayout(0));
+        panel.add(toolBar.getComponent());
+        previewPanel.add(panel, BorderLayout.NORTH);
+    }
+
+    public void onFocusInEditorClicked() {
+        previewPanel.onEditSource();
     }
 
     private ToolWindow getToolWindow() {
@@ -148,122 +187,15 @@ public class CfgPluginController implements ProjectComponent {
         }
     }
 
-//    public void installListeners() {
-//        LOG.info("installListeners " + project.getName());
-//        VirtualFileManager.getInstance().addVirtualFileListener(myVirtualFileAdapter);
-//
-//        MessageBusConnection msgBus = project.getMessageBus().connect(project);
-//        msgBus.subscribe(
-//                FileEditorManagerListener.FILE_EDITOR_MANAGER,
-//                myFileEditorManagerAdapter
-//        );
-//
-//        EditorFactory factory = EditorFactory.getInstance();
-//        factory.addEditorFactoryListener(
-//                new EditorFactoryAdapter() {
-//                    @Override
-//                    public void editorCreated(@NotNull EditorFactoryEvent event) {
-//                        final Editor editor = event.getEditor();
-//                        final Document doc = editor.getDocument();
-//                        VirtualFile vfile = FileDocumentManager.getInstance().getFile(doc);
-//                        if (vfile != null && vfile.getName().endsWith(".cfg")) {
-//                            GrammarEditorMouseAdapter listener = new GrammarEditorMouseAdapter();
-//                            editor.putUserData(EDITOR_MOUSE_LISTENER_KEY, listener);
-//                            editor.addEditorMouseListener(listener);
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void editorReleased(@NotNull EditorFactoryEvent event) {
-//                        Editor editor = event.getEditor();
-//                        if (editor.getProject() != null && editor.getProject() != project) {
-//                            return;
-//                        }
-//                        GrammarEditorMouseAdapter listener = editor.getUserData(EDITOR_MOUSE_LISTENER_KEY);
-//                        if (listener != null) {
-//                            editor.removeEditorMouseListener(listener);
-//                            editor.putUserData(EDITOR_MOUSE_LISTENER_KEY, null);
-//                        }
-//                    }
-//                }
-//        );
-//
-//    }
+    public void installListeners() {
+    }
 
-//    public void uninstallListeners() {
-//        VirtualFileManager.getInstance().removeVirtualFileListener(myVirtualFileAdapter);
-//        MessageBusConnection msgBus = project.getMessageBus().connect(project);
-//        msgBus.disconnect();
-//    }
+    public void uninstallListeners() {
+    }
 
     @NotNull
     @Override
     public String getComponentName() {
         return PLUGIN_NAME + '.' + PROJECT_COMPONENT_NAME;
     }
-
-//    private class MyVirtualFileAdapter implements VirtualFileListener {
-//        @Override
-//        public void contentsChanged(VirtualFileEvent event) {
-//            if (CfgUtil.isCfgVirtualFile(event.getFile()) && !projectIsClosed) {
-//                previewPanel.setCurrentFile(event.getFile());
-//            }
-//        }
-//
-//        @Override
-//        public void fileCreated(@NotNull VirtualFileEvent event) {
-//            // refresh the tree of the package
-//        }
-//
-//        @Override
-//        public void fileDeleted(@NotNull VirtualFileEvent event) {
-//            // refresh the tree of the package
-//        }
-//
-//        @Override
-//        public void fileMoved(@NotNull VirtualFileMoveEvent event) {
-//            // refresh the tree of the packages involved
-//        }
-//
-//        @Override
-//        public void fileCopied(@NotNull VirtualFileCopyEvent event) {
-//            // refresh the tree of the packages involved
-//        }
-//    }
-
-//    private class MyFileEditorManagerAdapter implements FileEditorManagerListener {
-//        @Override
-//        public void selectionChanged(FileEditorManagerEvent event) {
-//            if (CfgUtil.isCfgVirtualFile(event.getNewFile()) && !projectIsClosed) {
-//                previewPanel.setCurrentFile(event.getNewFile());
-//            }
-//        }
-//
-//        @Override
-//        public void fileClosed(FileEditorManager source, VirtualFile file) {
-//        }
-//
-//        @Override
-//        public void fileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
-//            if (CfgUtil.isCfgVirtualFile(file) && !projectIsClosed) {
-//                previewPanel.setCurrentFile(file);
-//            }
-//        }
-//    }
-
-//    private class GrammarEditorMouseAdapter extends EditorMouseAdapter {
-//        @Override
-//        public void mouseClicked(EditorMouseEvent e) {
-//            Document doc = e.getEditor().getDocument();
-//            VirtualFile vfile = FileDocumentManager.getInstance().getFile(doc);
-//            if (vfile != null) {
-//                PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(doc);
-//                e.getEditor().getCaretModel().getOffset();
-//                PsiElement element = psiFile.findElementAt(e.getEditor().getCaretModel().getOffset());
-//            }
-//
-//            // if mouse clicked, then go to the segment where the mouse clicked
-//        }
-//    }
-
 }
