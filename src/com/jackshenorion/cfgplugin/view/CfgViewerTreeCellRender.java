@@ -4,7 +4,7 @@ import com.intellij.ui.ColoredTreeCellRenderer;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.SimpleTextAttributes;
 import com.jackshenorion.cfgplugin.CfgIcons;
-import com.jackshenorion.cfgplugin.model.CfgViewerTreeNode;
+import com.jackshenorion.cfgplugin.model.ViewerTreeNode;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -22,32 +22,32 @@ public class CfgViewerTreeCellRender extends ColoredTreeCellRenderer {
 
     @Override
     public void customizeCellRenderer(@NotNull JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-        CfgViewerTreeNode jobInfo = (CfgViewerTreeNode) value;
+        ViewerTreeNode jobInfo = (ViewerTreeNode) value;
         if (jobInfo == null) {
             append("null");
         }
-        if (jobInfo.isBaseJob()) {
+        if (jobInfo.isExtendedByOtherJob()) {
+            setIcon(CfgIcons.Right);
+        } else if (jobInfo.isBaseJob()) {
             setIcon(CfgIcons.BASE_JOB);
         } else {
             setIcon(leaf ? CfgIcons.PROJECT_JOB : CfgIcons.TASK_GROUP);
+        }
+        if (jobInfo.isExtendedByOtherJob()) {
+            append("extends ", MY_SUPER_JOB);
         }
         if (jobInfo.isOnErrorPath()) {
             append("" + jobInfo.getName(), MY_ERROR_NAME);
         } else {
             append("" + jobInfo.getName());
         }
-        if (jobInfo.isExtendingOtherJob()) {
-            append("->" + jobInfo.getExtendedJob(), MY_SUPER_JOB);
-        }
-        append(" " + jobInfo.getJobClass(), jobInfo.isJobClassUndefined() ? MY_ERROR_JOB_CLASS : GRAY_ITALIC_ATTRIBUTES);
-        if (jobInfo.isExtendedByOtherJob()) {
-            append(" SuperJob", MY_SUPER_JOB);
-        }
         if (jobInfo.isUndefined()) {
             append(" Undefined", ERROR_ATTRIBUTES);
-        }
-        if (jobInfo.isDuplicate()) {
-            append(" Duplicate", ERROR_ATTRIBUTES);
+        } else {
+            append(" " + jobInfo.getJobClass(), jobInfo.isJobClassUndefined() ? MY_ERROR_JOB_CLASS : GRAY_ITALIC_ATTRIBUTES);
+            if (jobInfo.isDuplicate()) {
+                append(" Duplicate", ERROR_ATTRIBUTES);
+            }
         }
     }
 }

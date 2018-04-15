@@ -12,8 +12,8 @@ import com.intellij.ui.components.JBScrollPane;
 import com.jackshenorion.cfgplugin.CfgLanguage;
 import com.jackshenorion.cfgplugin.controller.CfgPluginController;
 import com.jackshenorion.cfgplugin.CfgUtil;
-import com.jackshenorion.cfgplugin.model.CfgViewerTreeNode;
-import com.jackshenorion.cfgplugin.model.CfgViewerTreeModel;
+import com.jackshenorion.cfgplugin.model.ViewerTreeNode;
+import com.jackshenorion.cfgplugin.model.ViewerTreeModel;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -30,10 +30,10 @@ public class CfgViewerPanel extends JPanel {
     private CfgPluginController cfgPluginController;
     private Project project;
     private CfgViewerTree tree;
-    private CfgViewerTreeModel model;
+    private ViewerTreeModel model;
     private final EditorCaretMover caretMover;
     private final ViewerTreeSelectionListener treeSelectionListener;
-    private VirtualFile currentVirtualFile;
+    private VirtualFile projectRepresentativeFile;
 
     public CfgViewerPanel(CfgPluginController cfgPluginController) {
         this.cfgPluginController = cfgPluginController;
@@ -45,7 +45,7 @@ public class CfgViewerPanel extends JPanel {
 
     private void buildUI() {
         setLayout(new BorderLayout());
-        model = new CfgViewerTreeModel(cfgPluginController);
+        model = new ViewerTreeModel(cfgPluginController);
         tree = new CfgViewerTree(model);
         tree.getSelectionModel().addTreeSelectionListener(treeSelectionListener);
         ActionMap actionMap = tree.getActionMap();
@@ -76,9 +76,9 @@ public class CfgViewerPanel extends JPanel {
     private static final String CARET_MOVED = "caret moved";
     private static final String TREE_SELECTION_CHANGED = "tree selection changed";
     private boolean inSetSelectedElement = false;
-    private CfgViewerTreeNode selectedJobNode;
+    private ViewerTreeNode selectedJobNode;
 
-    private CfgViewerTreeNode getSelectedNode() {
+    private ViewerTreeNode getSelectedNode() {
         return selectedJobNode;
     }
 
@@ -91,11 +91,11 @@ public class CfgViewerPanel extends JPanel {
     private class ViewerTreeSelectionListener implements TreeSelectionListener {
         @Override
         public void valueChanged(TreeSelectionEvent e) {
-            setSelectedNode((CfgViewerTreeNode) tree.getLastSelectedPathComponent(), CfgViewerPanel.TREE_SELECTION_CHANGED);
+            setSelectedNode((ViewerTreeNode) tree.getLastSelectedPathComponent(), CfgViewerPanel.TREE_SELECTION_CHANGED);
         }
     }
 
-    private void setSelectedNode(CfgViewerTreeNode jobNode, String reason) {
+    private void setSelectedNode(ViewerTreeNode jobNode, String reason) {
         if (inSetSelectedElement) {
             return;
         }
@@ -138,6 +138,8 @@ public class CfgViewerPanel extends JPanel {
     }
 
     public void refreshRootElement() {
+        projectRepresentativeFile = null;
+        selectedJobNode = null;
         selectElementAtCaret();
     }
 
@@ -165,21 +167,37 @@ public class CfgViewerPanel extends JPanel {
         }
 
         if (elementAtCaret != null && elementAtCaret != getSelectedElement()) {
-            setCurrentFile(psiFile.getOriginalFile().getVirtualFile());
+            setProjectRepresentativeFile(psiFile.getOriginalFile().getVirtualFile());
+            setSelectedJobNode(elementAtCaret);
             reflectSelectedElementOnTree(elementAtCaret, changeSource == null ? CfgViewerPanel.CARET_MOVED : changeSource);
         }
     }
 
-    public void setCurrentFile(VirtualFile virtualFile) {
+    private void setSelectedJobNode(PsiElement element) {
+        ViewerTreeNode node = model.getNode(element);
+        if (node == null) {
+            return;
+        }
+        setSelectedJobNode(node);
+    }
+
+    private void setSelectedJobNode(ViewerTreeNode node) {
+        selectedJobNode = node;
+    }
+
+    public void setProjectRepresentativeFile(VirtualFile virtualFile) {
         if (!CfgUtil.isCfgVirtualFile(virtualFile)) {
             return;
         }
-        currentVirtualFile = virtualFile;
-        resetTree();
+        if (CfgUtil.isScopeChanged(projectRepresentativeFile, virtualFile)) {
+            projectRepresentativeFile = virtualFile;
+            resetTree();
+        }
     }
 
-    public VirtualFile getCurrentVirtualFile() {
-        return currentVirtualFile;
+
+    public VirtualFile getProjectRepresentativeFile() {
+        return projectRepresentativeFile;
     }
 
     private void resetTree() {
@@ -192,8 +210,8 @@ public class CfgViewerPanel extends JPanel {
             path = tree.getSelectionModel().getSelectionPath();
         }
 
-        model = new CfgViewerTreeModel(this.cfgPluginController);
-        model.setCfgFiles(CfgUtil.findProjectCfgFiles(project, currentVirtualFile), CfgUtil.findStandardCfgFiles(project));
+        model = new ViewerTreeModel(this.cfgPluginController);
+        model.setCfgFiles(CfgUtil.findProjectCfgFiles(project, projectRepresentativeFile), CfgUtil.findStandardCfgFiles(project));
         tree.setModel(model);
         if (expandedDescendants != null)
             while (expandedDescendants.hasMoreElements()) {

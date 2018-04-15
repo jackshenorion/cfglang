@@ -142,8 +142,12 @@ public class CfgUtil {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
+    public static boolean isScopeChanged(VirtualFile oldFile, VirtualFile newFile) {
+        return oldFile == null || (!isSamePackage(oldFile, newFile) && !isStandardCfgFile(newFile));
+    }
+
     public static boolean isSamePackage(VirtualFile fileToMatch, VirtualFile fileToCheck) {
-        return fileToMatch.getParent().getCanonicalPath().equals(fileToCheck.getParent().getCanonicalPath());
+        return fileToMatch != null && fileToMatch.getParent().getCanonicalPath().equals(fileToCheck.getParent().getCanonicalPath());
     }
 
     public static boolean isStandardCfgFile(VirtualFile fileToCheck) {
@@ -162,7 +166,7 @@ public class CfgUtil {
     }
 
     public static boolean isJobKey(String key) {
-        return key.equals(PROPERTY_KEY_JOB) || key.equals(PROPERTY_KEY_WAIT_JOB);
+        return key.equals(PROPERTY_KEY_JOB) || key.equals(PROPERTY_KEY_WAIT_JOB) || key.equals(PROPERTY_KEY_EXTEND_JOB);
     }
 
     public static boolean isExtendJobKey(String key) {
@@ -171,7 +175,7 @@ public class CfgUtil {
 
     @Nullable
     public static VirtualFile getVirtualFile(PsiElement psiElement) {
-        if (psiElement == null || !psiElement.isValid()
+        if (psiElement == null //|| !psiElement.isValid()
                 || psiElement.getContainingFile() == null
                 || psiElement.getContainingFile().getOriginalFile() == null) {
             System.out.println("getVirtualFile: null: " + psiElement);
@@ -182,7 +186,7 @@ public class CfgUtil {
 
     @Nullable
     public static PsiFile getContainingFile(PsiElement psiElement) {
-        if (psiElement == null || !psiElement.isValid()) {
+        if (psiElement == null) {// || !psiElement.isValid()) {
             return null;
         }
         return psiElement.getContainingFile().getOriginalFile();

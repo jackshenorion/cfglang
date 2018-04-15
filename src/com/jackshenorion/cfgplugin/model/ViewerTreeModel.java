@@ -17,20 +17,20 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import java.util.*;
 
-public class CfgViewerTreeModel implements TreeModel {
+public class ViewerTreeModel implements TreeModel {
     private final static String JOB_ROOT = "Root";
 
     private CfgPluginController cfgPluginController;
     private List<CfgFile> projectCfgFiles;
     private List<CfgFile> baseCfgFiles;
-    private CfgViewerTreeNode rootJobNode;
+    private ViewerTreeNode rootJobNode;
 
     private Map<String, List<String>> adjacencyList;
     private Map<String, List<String>> reverseAdjacencyList;
-    private Map<String, CfgViewerTreeNode> jobNameToTreeNode;
+    private Map<String, ViewerTreeNode> jobNameToTreeNode;
     private Set<String> jobClasses;
 
-    public CfgViewerTreeModel(CfgPluginController cfgPluginController) {
+    public ViewerTreeModel(CfgPluginController cfgPluginController) {
         this.cfgPluginController = cfgPluginController;
         init();
     }
@@ -42,7 +42,7 @@ public class CfgViewerTreeModel implements TreeModel {
         reverseAdjacencyList = new HashMap<>();
         jobNameToTreeNode = new LinkedHashMap<>();
         jobClasses = new HashSet<>();
-        rootJobNode = new CfgViewerTreeNode(JOB_ROOT, false, true);
+        rootJobNode = new ViewerTreeNode(JOB_ROOT, false, true);
     }
 
     public void setCfgFiles(List<CfgFile> projectCfgFiles, List<CfgFile> baseCfgFiles) {
@@ -81,7 +81,7 @@ public class CfgViewerTreeModel implements TreeModel {
     }
 
     private void readJobs(List<CfgFile> cfgFiles, boolean isBaseCfgFile) {
-        CfgViewerTreeNode[] currentTreeNode = {null};
+        ViewerTreeNode[] currentTreeNode = {null};
         for (CfgFile cfgFile : cfgFiles) {
             currentTreeNode[0] = null;
             List<PsiElement> elements = PsiTreeUtil.getChildrenOfAnyType(cfgFile, CfgSegment.class, CfgProperty.class);
@@ -95,7 +95,7 @@ public class CfgViewerTreeModel implements TreeModel {
         }
     }
 
-    private void onCfgSegment(CfgViewerTreeNode[] currentTreeNode, CfgSegment segment, boolean isBaseJob) {
+    private void onCfgSegment(ViewerTreeNode[] currentTreeNode, CfgSegment segment, boolean isBaseJob) {
         if (jobNameToTreeNode.containsKey(segment.getName())) {
             if (!isBaseJob) {
                 jobNameToTreeNode.get(segment.getName()).setDuplicate(true);
@@ -103,28 +103,28 @@ public class CfgViewerTreeModel implements TreeModel {
             currentTreeNode[0] = null;
             return;
         }
-        CfgViewerTreeNode newNode = new CfgViewerTreeNode(segment.getName(), isBaseJob);
+        ViewerTreeNode newNode = new ViewerTreeNode(segment.getName(), isBaseJob);
         newNode.setCfgSegment(segment);
         currentTreeNode[0] = newNode;
         jobNameToTreeNode.put(segment.getName(), newNode);
         adjacencyList.put(newNode.getName(), new ArrayList<>());
     }
 
-    private void onCfgProperty(CfgViewerTreeNode[] currentTreeNode, CfgProperty property) {
+    private void onCfgProperty(ViewerTreeNode[] currentTreeNode, CfgProperty property) {
         if (currentTreeNode[0] == null) {
             return;
         }
-        CfgViewerTreeNode currentNode = currentTreeNode[0];
+        ViewerTreeNode currentNode = currentTreeNode[0];
         currentNode.addCfgProperty(property);
-        if (CfgUtil.isJobKey(property.getKey())) {
-            String targetJobName = property.getValue();
-            adjacencyList.get(currentNode.getName()).add(targetJobName);
-            reverseAdjacencyList.putIfAbsent(targetJobName, new ArrayList<>());
-            reverseAdjacencyList.get(targetJobName).add(currentNode.getName());
-        } else if (CfgUtil.isExtendJobKey(property.getKey())) {
+         if (CfgUtil.isExtendJobKey(property.getKey())) {
             String targetJobName = property.getValue();
             currentNode.setExtendingOtherJob(true);
             currentNode.setExtendedJob(property.getValue());
+            adjacencyList.get(currentNode.getName()).add(targetJobName);
+            reverseAdjacencyList.putIfAbsent(targetJobName, new ArrayList<>());
+            reverseAdjacencyList.get(targetJobName).add(currentNode.getName());
+        } else if (CfgUtil.isJobKey(property.getKey())) {
+            String targetJobName = property.getValue();
             adjacencyList.get(currentNode.getName()).add(targetJobName);
             reverseAdjacencyList.putIfAbsent(targetJobName, new ArrayList<>());
             reverseAdjacencyList.get(targetJobName).add(currentNode.getName());
@@ -135,7 +135,7 @@ public class CfgViewerTreeModel implements TreeModel {
         for (List<String> jobs : adjacencyList.values()) {
             for (String job : jobs) {
                 if (jobNameToTreeNode.get(job) == null) {
-                    CfgViewerTreeNode undefinedJobNode = new CfgViewerTreeNode(job, false, false, true);
+                    ViewerTreeNode undefinedJobNode = new ViewerTreeNode(job, false, false, true);
                     jobNameToTreeNode.put(job, undefinedJobNode);
                 }
             }
@@ -162,9 +162,9 @@ public class CfgViewerTreeModel implements TreeModel {
     }
 
     private void markExtendJob() {
-        for (CfgViewerTreeNode node : jobNameToTreeNode.values()) {
+        for (ViewerTreeNode node : jobNameToTreeNode.values()) {
             if (node.isExtendingOtherJob()) {
-                CfgViewerTreeNode extendedJobNode = jobNameToTreeNode.get(node.getExtendedJob());
+                ViewerTreeNode extendedJobNode = jobNameToTreeNode.get(node.getExtendedJob());
                 for (CfgProperty cfgProperty : extendedJobNode.getCfgPropertyList()) {
                     node.addCfgProperty(cfgProperty);
                 }
@@ -174,7 +174,7 @@ public class CfgViewerTreeModel implements TreeModel {
     }
 
     private void markUnknownJobClass() {
-        for (CfgViewerTreeNode node : jobNameToTreeNode.values()) {
+        for (ViewerTreeNode node : jobNameToTreeNode.values()) {
             node.setJobClassUndefined(!jobClasses.contains(node.getJobClass()));
         }
     }
@@ -186,7 +186,7 @@ public class CfgViewerTreeModel implements TreeModel {
             if (color.get(jobName) == 1) { // checked and marked as error
                 return;
             }
-            CfgViewerTreeNode treeNode = jobNameToTreeNode.get(jobName);
+            ViewerTreeNode treeNode = jobNameToTreeNode.get(jobName);
             if (treeNode.isDuplicate() || treeNode.isUndefined() || treeNode.isJobClassUndefined() || treeNode.isOnErrorPath()) {
                 color.put(jobName, 1);
                 treeNode.setOnErrorPath(true);
@@ -203,7 +203,7 @@ public class CfgViewerTreeModel implements TreeModel {
             return;
         }
         color.put(jobName, 1);
-        CfgViewerTreeNode treeNode = jobNameToTreeNode.get(jobName);
+        ViewerTreeNode treeNode = jobNameToTreeNode.get(jobName);
         treeNode.setOnErrorPath(true);
         for (String parentJob : reverseAdjacencyList.getOrDefault(treeNode.getName(), Collections.emptyList())) {
             markErrorPath(color, parentJob);
@@ -217,20 +217,20 @@ public class CfgViewerTreeModel implements TreeModel {
 
     @Override
     public Object getChild(Object parent, int index) {
-        CfgViewerTreeNode jobInfo = (CfgViewerTreeNode) parent;
+        ViewerTreeNode jobInfo = (ViewerTreeNode) parent;
         String childJobName = adjacencyList.get(jobInfo.getName()).get(index);
         return jobNameToTreeNode.get(childJobName);
     }
 
     @Override
     public int getChildCount(Object parent) {
-        CfgViewerTreeNode jobInfo = (CfgViewerTreeNode) parent;
+        ViewerTreeNode jobInfo = (ViewerTreeNode) parent;
         return adjacencyList.getOrDefault(jobInfo.getName(), Collections.emptyList()).size();
     }
 
     @Override
     public boolean isLeaf(Object node) {
-        CfgViewerTreeNode jobInfo = (CfgViewerTreeNode) node;
+        ViewerTreeNode jobInfo = (ViewerTreeNode) node;
         return adjacencyList.getOrDefault(jobInfo.getName(), Collections.emptyList()).size() == 0;
     }
 
@@ -241,8 +241,8 @@ public class CfgViewerTreeModel implements TreeModel {
 
     @Override
     public int getIndexOfChild(Object parent, Object child) {
-        CfgViewerTreeNode parentJobInfo = (CfgViewerTreeNode) parent;
-        CfgViewerTreeNode childJobInfo = (CfgViewerTreeNode) child;
+        ViewerTreeNode parentJobInfo = (ViewerTreeNode) parent;
+        ViewerTreeNode childJobInfo = (ViewerTreeNode) child;
         return adjacencyList.getOrDefault(parentJobInfo.getName(), Collections.emptyList()).indexOf(childJobInfo.getName());
     }
 
@@ -263,12 +263,12 @@ public class CfgViewerTreeModel implements TreeModel {
     }
 
     @Nullable
-    public CfgViewerTreeNode getNode(CfgSegment segment) {
+    public ViewerTreeNode getNode(CfgSegment segment) {
         return jobNameToTreeNode.get(segment.getName());
     }
 
     @Nullable
-    public CfgViewerTreeNode getParent(CfgViewerTreeNode node) {
+    public ViewerTreeNode getParent(ViewerTreeNode node) {
         if (reverseAdjacencyList.get(node.getName()) == null
                 || reverseAdjacencyList.get(node.getName()).size() == 0) {
             return null;
@@ -276,13 +276,17 @@ public class CfgViewerTreeModel implements TreeModel {
         return jobNameToTreeNode.get(reverseAdjacencyList.get(node.getName()).get(0));
     }
 
-    public TreePath getPath(PsiElement element) {
+    public ViewerTreeNode getNode(PsiElement element) {
         CfgSegment segment = getSegment(element);
         if (segment == null) {
             return null;
         }
 
-        CfgViewerTreeNode node = getNode(segment);
+        return getNode(segment);
+    }
+
+    public TreePath getPath(PsiElement element) {
+        ViewerTreeNode node = getNode(element);
         if (node == null) {
             return null;
         }

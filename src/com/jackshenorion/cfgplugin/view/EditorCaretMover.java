@@ -12,7 +12,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.jackshenorion.cfgplugin.CfgUtil;
-import com.jackshenorion.cfgplugin.model.CfgViewerTreeNode;
+import com.jackshenorion.cfgplugin.model.ViewerTreeNode;
 import com.jackshenorion.cfgplugin.psi.CfgSegment;
 
 class EditorCaretMover {
@@ -27,28 +27,30 @@ class EditorCaretMover {
         _shouldMoveCaret = false;
     }
 
-    public void moveEditorCaret(CfgViewerTreeNode node) {
-        if (node == null || node.getCfgSegment() == null) return;
-
-        CfgSegment segment = node.getCfgSegment();
-
-        if (shouldMoveCaret(segment)) {
-            Editor editor = getEditor(segment);
-            if (editor == null) {
-                return;
-            }
-
-            int textOffset = segment.getTextOffset();
-            if (textOffset < editor.getDocument().getTextLength()) {
-                editor.getCaretModel().moveToOffset(textOffset);
-                editor.getScrollingModel().scrollToCaret(ScrollType.MAKE_VISIBLE);
-            }
+    public void moveEditorCaret(ViewerTreeNode node) {
+        if (node == null || node.getCfgSegment() == null) {
+            return;
         }
-        _shouldMoveCaret = true;
+        CfgSegment segment = node.getCfgSegment();
+        try {
+            if (shouldMoveCaret(segment)) {
+                Editor editor = openInEditor(segment);
+                if (editor == null) {
+                    return;
+                }
+                int textOffset = segment.getTextOffset();
+                if (textOffset < editor.getDocument().getTextLength()) {
+                    editor.getCaretModel().moveToOffset(textOffset);
+                    editor.getScrollingModel().scrollToCaret(ScrollType.MAKE_VISIBLE);
+                }
+            }
+        } finally {
+            _shouldMoveCaret = true;
+        }
     }
 
     private boolean shouldMoveCaret(PsiElement element) {
-        return _shouldMoveCaret && CfgUtil.isElementInSelectedFile(_project, element);
+        return _shouldMoveCaret;// && CfgUtil.isElementInSelectedFile(_project, element);
     }
 
     private Editor getEditor(PsiElement element) {
@@ -65,16 +67,15 @@ class EditorCaretMover {
             psiFile = CfgUtil.getContainingFile(element);
             i = element.getTextOffset();
         }
-
-        if (psiFile == null) return null;
-
+        if (psiFile == null) {
+            return null;
+        }
         final VirtualFile virtualFile = psiFile.getVirtualFile();
-
-        if (virtualFile == null) return null;
-
+        if (virtualFile == null) {
+            return null;
+        }
         OpenFileDescriptor fileDesc = new OpenFileDescriptor(_project, virtualFile, i);    // 20050826 IDEA 5.0.1 #3461
         disableMovementOneTime();
         return FileEditorManager.getInstance(_project).openTextEditor(fileDesc, false);
     }
-
 }

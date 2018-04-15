@@ -13,4 +13,5 @@ public class CfgIcons {
     public static final Icon ERROR = IconLoader.getIcon("/com/jackshenorion/cfgplugin/icons/quickfixBulb.png");
     public static final Icon WARNING = IconLoader.getIcon("/com/jackshenorion/cfgplugin/icons/intentionBulb.png");
     public static final Icon LOCATE = IconLoader.getIcon("/com/jackshenorion/cfgplugin/icons/locate_dark.png");
+    public static final Icon Right =  IconLoader.getIcon("/com/jackshenorion/cfgplugin/icons/arrow_right.png");
 }

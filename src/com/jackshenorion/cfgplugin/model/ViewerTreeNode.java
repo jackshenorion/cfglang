@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CfgViewerTreeNode implements Comparable<CfgViewerTreeNode> {
+public class ViewerTreeNode implements Comparable<ViewerTreeNode> {
     private String name;
     private boolean isBaseJob = false;
     private boolean isRoot = false;
@@ -23,16 +23,16 @@ public class CfgViewerTreeNode implements Comparable<CfgViewerTreeNode> {
     private CfgSegment cfgSegment;
     private List<CfgProperty> cfgPropertyList = new ArrayList<>();
 
-    public CfgViewerTreeNode(String name, boolean isBaseJob, boolean isRoot, boolean undefined) {
+    public ViewerTreeNode(String name, boolean isBaseJob, boolean isRoot, boolean undefined) {
         this(name, isBaseJob, isRoot);
         this.undefined = undefined;
     }
 
-    public CfgViewerTreeNode(String name, boolean baseJob) {
+    public ViewerTreeNode(String name, boolean baseJob) {
         this(name, baseJob, false);
     }
 
-    public CfgViewerTreeNode(String name, boolean standardJob, boolean isRoot) {
+    public ViewerTreeNode(String name, boolean standardJob, boolean isRoot) {
         this.name = name;
         this.isBaseJob = standardJob;
         this.isRoot = isRoot;
@@ -58,7 +58,7 @@ public class CfgViewerTreeNode implements Comparable<CfgViewerTreeNode> {
         return isDuplicate;
     }
 
-    public CfgViewerTreeNode setDuplicate(boolean duplicate) {
+    public ViewerTreeNode setDuplicate(boolean duplicate) {
         isDuplicate = duplicate;
         return this;
     }
@@ -79,7 +79,7 @@ public class CfgViewerTreeNode implements Comparable<CfgViewerTreeNode> {
         return isExtendingOtherJob;
     }
 
-    public CfgViewerTreeNode setExtendingOtherJob(boolean extendingOtherJob) {
+    public ViewerTreeNode setExtendingOtherJob(boolean extendingOtherJob) {
         isExtendingOtherJob = extendingOtherJob;
         return this;
     }
@@ -88,7 +88,7 @@ public class CfgViewerTreeNode implements Comparable<CfgViewerTreeNode> {
         return extendedJob;
     }
 
-    public CfgViewerTreeNode setExtendedJob(String extendedJob) {
+    public ViewerTreeNode setExtendedJob(String extendedJob) {
         this.extendedJob = extendedJob;
         return this;
     }
@@ -97,12 +97,12 @@ public class CfgViewerTreeNode implements Comparable<CfgViewerTreeNode> {
         return isExtendedByOtherJob;
     }
 
-    public CfgViewerTreeNode setExtendedByOtherJob(boolean extendedByOtherJob) {
+    public ViewerTreeNode setExtendedByOtherJob(boolean extendedByOtherJob) {
         isExtendedByOtherJob = extendedByOtherJob;
         return this;
     }
 
-    public CfgViewerTreeNode setJobClassUndefined(boolean jobClassUndefined) {
+    public ViewerTreeNode setJobClassUndefined(boolean jobClassUndefined) {
         isJobClassUndefined = jobClassUndefined;
         return this;
     }
@@ -111,12 +111,12 @@ public class CfgViewerTreeNode implements Comparable<CfgViewerTreeNode> {
         return new ArrayList<>(cfgPropertyList);
     }
 
-    public CfgViewerTreeNode setCfgSegment(CfgSegment segment) {
+    public ViewerTreeNode setCfgSegment(CfgSegment segment) {
         this.cfgSegment = segment;
         return this;
     }
 
-    public CfgViewerTreeNode addCfgProperty(CfgProperty property) {
+    public ViewerTreeNode addCfgProperty(CfgProperty property) {
         this.cfgPropertyList.add(property);
         return this;
     }
@@ -134,7 +134,7 @@ public class CfgViewerTreeNode implements Comparable<CfgViewerTreeNode> {
     }
 
     @Override
-    public int compareTo(@NotNull CfgViewerTreeNode o) {
+    public int compareTo(@NotNull ViewerTreeNode o) {
         return this.getName().compareTo(o.getName());
     }
 }

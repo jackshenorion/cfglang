@@ -30,32 +30,38 @@ public class EditorListener implements CaretListener, FileEditorManagerListener 
         _project = project;
         _treeChangeListener = new PsiTreeChangeAdapter() {
             public void childrenChanged(@NotNull final PsiTreeChangeEvent event) {
-                updateTreeFromPsiTreeChange(event);
+                System.out.println("childrenChanged: " + event);
+                onPsiTreeChange(event);
             }
 
             public void childAdded(@NotNull PsiTreeChangeEvent event) {
-                updateTreeFromPsiTreeChange(event);
+                System.out.println("childAdded: " + event);
+                onPsiTreeChange(event);
             }
 
             public void childMoved(@NotNull PsiTreeChangeEvent event) {
-                updateTreeFromPsiTreeChange(event);
+                System.out.println("childMoved: " + event);
+                onPsiTreeChange(event);
             }
 
             public void childRemoved(@NotNull PsiTreeChangeEvent event) {
-                updateTreeFromPsiTreeChange(event);
+                System.out.println("childRemoved: " + event);
+                onPsiTreeChange(event);
             }
 
             public void childReplaced(@NotNull PsiTreeChangeEvent event) {
-                updateTreeFromPsiTreeChange(event);
+                System.out.println("childReplaced: " + event);
+                onPsiTreeChange(event);
             }
 
             public void propertyChanged(@NotNull PsiTreeChangeEvent event) {
-                updateTreeFromPsiTreeChange(event);
+                System.out.println("propertyChanged: " + event);
+                onPsiTreeChange(event);
             }
         };
     }
 
-    private void updateTreeFromPsiTreeChange(final PsiTreeChangeEvent event) {
+    private void onPsiTreeChange(final PsiTreeChangeEvent event) {
         if (onCfgViewerTree(event)) {
             ApplicationManager.getApplication().runWriteAction(new Runnable() {
                 @Override
@@ -67,7 +73,7 @@ public class EditorListener implements CaretListener, FileEditorManagerListener 
     }
 
     private boolean onCfgViewerTree(final PsiTreeChangeEvent event) {
-        if (_viewer.getCurrentVirtualFile() == null) {
+        if (_viewer.getProjectRepresentativeFile() == null) {
             return false;
         }
         PsiElement elementChangedByPsi = event.getParent();
@@ -78,17 +84,20 @@ public class EditorListener implements CaretListener, FileEditorManagerListener 
         if (changedVirtualFile == null || !CfgUtil.isCfgVirtualFile(changedVirtualFile)) {
             return false;
         }
-        return CfgUtil.isSamePackage(changedVirtualFile, _viewer.getCurrentVirtualFile()) || CfgUtil.isStandardCfgFile(changedVirtualFile);
+        return CfgUtil.isSamePackage(changedVirtualFile, _viewer.getProjectRepresentativeFile()) || CfgUtil.isStandardCfgFile(changedVirtualFile);
     }
 
     public void fileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
+        System.out.println("fileOpened: " + source + ":" + file);
     }
 
     public void fileClosed(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
+        System.out.println("fileClosed: " + source + ":" + file);
     }
 
     @Override
     public void selectionChanged(@NotNull FileEditorManagerEvent event) {
+        System.out.println("selectionChanged: " + event.getOldFile() + ":" + event.getNewFile());
         if (event.getNewFile() == null) {
             return;
         }
@@ -107,6 +116,17 @@ public class EditorListener implements CaretListener, FileEditorManagerListener 
     @Override
     public void caretPositionChanged(CaretEvent event) {
         _viewer.selectElementAtCaret();
+        System.out.println("caretPositionChanged: " + event);
+    }
+
+    @Override
+    public void caretAdded(CaretEvent e) {
+        System.out.println("caretAdded: " + e);
+    }
+
+    @Override
+    public void caretRemoved(CaretEvent e) {
+        System.out.println("caretRemoved: " + e);
     }
 
     public void start() {
