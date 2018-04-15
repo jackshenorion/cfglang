@@ -191,6 +191,7 @@ public class CfgViewerPanel extends JPanel {
         }
         if (CfgUtil.isScopeChanged(projectRepresentativeFile, virtualFile)) {
             projectRepresentativeFile = virtualFile;
+            cfgPluginController.onCurrentPackageChanged(projectRepresentativeFile.getParent().getName());
             resetTree();
         }
     }

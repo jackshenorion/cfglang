@@ -169,6 +169,10 @@ public class CfgPluginController implements ProjectComponent {
         return displayBaseJobs;
     }
 
+    public void onCurrentPackageChanged(String packageName) {
+        getToolWindow().setTitle(packageName);
+    }
+
     private ToolWindow getToolWindow() {
         ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(project);
         return isToolWindowRegistered() ?
