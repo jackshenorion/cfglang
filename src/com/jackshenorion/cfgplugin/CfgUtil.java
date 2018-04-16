@@ -178,7 +178,7 @@ public class CfgUtil {
         if (psiElement == null //|| !psiElement.isValid()
                 || psiElement.getContainingFile() == null
                 || psiElement.getContainingFile().getOriginalFile() == null) {
-            System.out.println("getVirtualFile: null: " + psiElement);
+//            System.out.println("getVirtualFile: null: " + psiElement);
             return null;
         }
         return psiElement.getContainingFile().getOriginalFile().getVirtualFile();

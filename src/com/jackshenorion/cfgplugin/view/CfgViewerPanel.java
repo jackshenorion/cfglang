@@ -74,6 +74,7 @@ public class CfgViewerPanel extends JPanel {
     }
 
     private static final String CARET_MOVED = "caret moved";
+    private static final String FORCE_REFRESH_TREE = "FORCE_REFRESH_TREE";
     private static final String TREE_SELECTION_CHANGED = "tree selection changed";
     private boolean inSetSelectedElement = false;
     private ViewerTreeNode selectedJobNode;
@@ -132,15 +133,12 @@ public class CfgViewerPanel extends JPanel {
     }
 
     private void moveEditorCaret() {
-        if (cfgPluginController.isAutoScrollToSource()) {
-            caretMover.moveEditorCaret(getSelectedNode());
-        }
+        caretMover.moveEditorCaret(getSelectedNode());
     }
 
-    public void refreshRootElement() {
-        projectRepresentativeFile = null;
+    public void forceRefreshTree() {
         selectedJobNode = null;
-        selectElementAtCaret();
+        selectElementAtCaret(FileEditorManager.getInstance(project).getSelectedTextEditor(), FORCE_REFRESH_TREE);
     }
 
     public void selectElementAtCaret() {
@@ -167,7 +165,7 @@ public class CfgViewerPanel extends JPanel {
         }
 
         if (elementAtCaret != null && elementAtCaret != getSelectedElement()) {
-            setProjectRepresentativeFile(psiFile.getOriginalFile().getVirtualFile());
+            setProjectRepresentativeFile(psiFile.getOriginalFile().getVirtualFile(), changeSource);
             setSelectedJobNode(elementAtCaret);
             reflectSelectedElementOnTree(elementAtCaret, changeSource == null ? CfgViewerPanel.CARET_MOVED : changeSource);
         }
@@ -185,13 +183,15 @@ public class CfgViewerPanel extends JPanel {
         selectedJobNode = node;
     }
 
-    public void setProjectRepresentativeFile(VirtualFile virtualFile) {
+    public void setProjectRepresentativeFile(VirtualFile virtualFile, String changeSource) {
         if (!CfgUtil.isCfgVirtualFile(virtualFile)) {
             return;
         }
         if (CfgUtil.isScopeChanged(projectRepresentativeFile, virtualFile)) {
             projectRepresentativeFile = virtualFile;
             cfgPluginController.onCurrentPackageChanged(projectRepresentativeFile.getParent().getName());
+            resetTree();
+        } else if (FORCE_REFRESH_TREE.equals(changeSource)) {
             resetTree();
         }
     }

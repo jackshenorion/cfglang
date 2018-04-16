@@ -33,9 +33,6 @@ public class CfgPluginController implements ProjectComponent {
     public static final String PREVIEW_WINDOW_ID = "Smarts Jobs Viewer";
 
     public boolean projectIsClosed = false;
-    public boolean autoScrollToSource = true;
-    public boolean autoScrollFromSource = true;
-
     public Project project;
     public ToolWindow previewWindow;
     public CfgViewerPanel previewPanel;
@@ -60,14 +57,6 @@ public class CfgPluginController implements ProjectComponent {
 
     public Project getProject() {
         return project;
-    }
-
-    public boolean isAutoScrollToSource() {
-        return autoScrollToSource;
-    }
-
-    public boolean isAutoScrollFromSource() {
-        return autoScrollFromSource;
     }
 
     @Override
@@ -114,7 +103,6 @@ public class CfgPluginController implements ProjectComponent {
         previewWindow.setIcon(CfgIcons.FILE);
         createActionToolBar();
         editorListener = new EditorListener(previewPanel, project);
-        //todo show name of current file and its package
     }
 
     private void createActionToolBar() {
@@ -147,7 +135,7 @@ public class CfgPluginController implements ProjectComponent {
                 displayBaseJobs = isSelected;
                 break;
         }
-        previewPanel.refreshRootElement();
+        previewPanel.forceRefreshTree();
     }
 
     public boolean getViewSwitch(String switchName) {
